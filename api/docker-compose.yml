@@ -1,10 +1,15 @@
 version: '3.8'
 
 services:
-  my_service:
+  arm-ia:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      SERVER_VPS1_IP : ${SERVER_VPS1_IP:?error}
+      USER_MONGODB : ${USER_MONGODB:?error}
+      PWD_MONGODB : ${PWD_MONGODB:?error}
+      ARM_VPS1_API_KEY : ${ARM_VPS1_API_KEY:?error}
     ports :
       - 8000:80 
     volumes : 

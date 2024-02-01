@@ -6,7 +6,6 @@ import io
 import logging
 import datetime
 import random
-import re
 import json
 import shutil
 import sys
@@ -212,12 +211,3 @@ class Mongo :
         
 
         
-
-        
-
-if __name__ == "__main__" : 
-    Mongo_test = Mongo()
-    # Mongo_test.test()
-    Mongo_test.reset_db(test=False)
-
-
