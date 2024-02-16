@@ -68,7 +68,7 @@ class Utils :
         #     self.dataset_collection.insert_one(new_document)
         return doc
     
-    def pproc_frame(self, detected_df, dataset_id = 0, dataset_extraction = "ARM", pretreatment = False, data_augmentation = False, test = True):
+    def pproc_frame(self, detected_df, dataset_id = [0], dataset_extraction = "ARM", pretreatment = False, data_augmentation = False, test = True):
         """ 
         Mise en forme des données d'une frame pour envoie à la bdd mongo via api-ia.
         Add a new frame with an array of binaries [image, annotation, metadata] in dataset collection.
@@ -105,21 +105,21 @@ class Utils :
         names = set(code_detected["name"])
         for name in names :
             data = code_detected[code_detected["name"]==name]
-            image = (name, open(os.path.join("automatic_dataset", "temp", name),"rb"))
+            image = ("files", open(os.path.join("automatic_dataset", "temp", name),"rb"))
 
             binary_anotation = []
             for index, value in data.iterrows(): 
                 #transformer en dict
                 object_anotation = {"label" : "undefined",
-                                    "label_int" : str(value["code"])[2:-1],
-                                    "bounding_box" : [str(value["bbxywhn"][0]), str(value["bbxywhn"][1]), str(value["bbxywhn"][2]), str(value["bbxywhn"][3])]}
+                                    "label_int" : int(str(value["code"])[2:-1]),
+                                    "bounding box" : [float(value["bbxywhn"][0]), float(value["bbxywhn"][1]), float(value["bbxywhn"][2]), float(value["bbxywhn"][3])]}
                 binary_anotation.append(object_anotation)
-            binary_anotation = bytes().join(bytes([x]) for x in binary_anotation)
-            anotations = (name, binary_anotation)
+            binary_anotation = bytes(str(binary_anotation), "utf-8")
+            anotations = ("files", binary_anotation)
 
-            metadata = f'{"dataset_id" : {dataset_id}, "dataset_extraction" : {dataset_extraction}, "pretreatment" : {pretreatment}, "data_augmentation" : {data_augmentation}, "test" : {test}}'
-            metadata = bytes(metadata)
-            metadatas = (name, metadata)
+            metadata = f'{{"dataset_id" : {dataset_id}, "dataset_extraction" : {dataset_extraction}, "pretreatment" : {pretreatment}, "data_augmentation" : {data_augmentation}, "test" : {test}}}'  # Double {{}} pour escape par rapport aux variables. 
+            metadata = bytes(metadata, "utf-8")
+            metadatas = ("files", metadata)
             frames.append([image, anotations, metadatas])
         
         return frames

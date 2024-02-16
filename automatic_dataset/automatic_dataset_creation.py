@@ -164,6 +164,7 @@ class automatic_dataset :
 
         for index, value in self.detected.iterrows():
             # ouvrir image
+            
             image = Image.open(os.path.join(self.path_temp,value["name"]))
             
             # cropper avec bb 
@@ -177,6 +178,7 @@ class automatic_dataset :
                 # img_crop.show()
                 self.detected["code"].loc[self.detected["id"]==value["id"]] = res_barcode[0].data
                 log.info(f"code detetcted : {res_barcode[0].data}")
+
 
         print(self.detected)
         # Transformer le dict en fichier text d'annotation yolo
@@ -216,7 +218,8 @@ class automatic_dataset :
         for frame in frames : 
             print("---")
             print(frame)
-            res = httpx.post(f"http://localhost/dataset/frames/", data = frame, headers=self.headers)
+            print(type(frame))
+            res = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = frame, headers=self.headers)
             print("---")
             print(res)
 
