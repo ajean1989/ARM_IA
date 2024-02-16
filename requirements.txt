@@ -12,3 +12,5 @@ pytube
 pyzbar
 pymongo
 pytest
+httpx
+Pyarrow

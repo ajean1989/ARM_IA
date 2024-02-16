@@ -1,4 +1,5 @@
 checkpoints/*
+*/model/*
 */temp/*
 temp/*
 data/custom_model1/*
@@ -15,3 +16,6 @@ app.log
 *.code-workspace
 *.pyc
 
+automatic_dataset/analyzed
+automatic_dataset/to_analyze
+automatic_dataset/model

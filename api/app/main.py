@@ -28,7 +28,8 @@ app = FastAPI(
     servers=[{"name" : "5.195.7.246"}],
     openapi_tags=[{"name" : "dataset"},
                   {"name", "datawarehouse"}],
-    dependencies=[Depends(validate_api_key)]
+    dependencies=[Depends(validate_api_key)],
+    root_path="/api-ia"
 )
 
 # Connexion Mongo DB

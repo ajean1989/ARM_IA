@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import time
 import logging
-import requests
+import httpx
 import json
 import re
 
@@ -18,8 +18,8 @@ from ultralytics import YOLO
 import cv2
 from pyzbar.pyzbar import decode
 
-from backend.config import *
-from backend.utils import Utils
+from automatic_dataset.config import *
+from automatic_dataset.utils import Utils
 
 
 class automatic_dataset :
@@ -33,26 +33,28 @@ class automatic_dataset :
     log.addHandler(console_handler)   
     log.addHandler(file_handler)   
 
-    def __init__(self,weight,input, test = True) :
-        self.weight = weight
+    def __init__(self,input, test = True) :
         self.input = input
-        self.model = YOLO(os.path.join("checkpoints", self.weight))
+        self.weight = os.listdir(os.path.join("automatic_dataset", "model"))[0]
+        self.model = YOLO(os.path.join("automatic_dataset", "model", self.weight))
         self.tracker = os.path.join("tracker", "custom_botsort.yaml")
         # self.tracker = "tracker/bytetrack.yaml"
         self.detected = pd.DataFrame(columns=["name","id","bbxyxy","bbxywhn","code"])
         # Dossier temp nécéssaire pour faire la detection et suppr img sans détection
-        self.path_temp = os.path.join("backend","temp")
+        self.path_temp = os.path.join("automatic_dataset", "temp")
         # self.path_dataset = os.path.join("backend","datasets","bottle_dataset","dataset")
         self.test = test
         self.adresse_mongo = adresse_mongo
         self.adresse_maria= adresse_maria
         self.headers = {"X-API-Key" : list(API_KEYS.keys())[0]}
         self.dataset_ids = [0,1]
-        if re.search("oiv7", weight):
+        if re.search("oiv7", self.weight):
             self.classes = [199,171,62,57,535]
         else : 
+            # pre trained model
             self.classes = [39,41]
-        if re.search("train", weight):
+        if re.search("train", self.weight):
+            #custom model
             self.classes = [0]
       
 
@@ -62,35 +64,32 @@ class automatic_dataset :
         self.code()
 
 
-    def reset(self) :
+    def reset_temp(self) :
         """ Supprime tous les fichiers temp + dataset_test en mode test """
 
         temp = os.listdir(self.path_temp)
         for img in temp: 
             os.remove(os.path.join(self.path_temp,img))
-        # dataset = os.listdir(self.path_dataset)
-        # for img in dataset: 
-        #     os.remove(os.path.join(self.path_dataset,img))
         
-        logging.info("mode test activé : Tous les fichiers de temp/ et dataset/ supprimés")
+        logging.info("temp files deleted.")
         
-        # bdd = input("Voulez vous supprimer toute la base de données de test ? Y/N :" )
-        # if bdd == "Y" or bdd == "y" :
-            # API reset db
 
-        # Reset db en cas de test    
-        if self.test :
-            for i in self.dataset_ids :
-                requests.delete(f"{self.ip_vps}/dataset/{i}")
 
 
     
     def detection(self, vizualize= False, max_frame = -1, log=log) :
 
         """ 
-        Détection d'objets bottle et cup (COCO) || Bottle, Box, Tin can (OIV7) au sein d'un flux video
-        Les frames sont avec détection sont placées dans temp/
+        Détection d'objets "bottle" et "cup" (COCO) 
+        || "Bottle", "Box", "Tin can" (OIV7) au sein d'un flux video
+        || "Object" dans le custom model
+
+        Les frames avec détection sont placées dans temp/, dossier nécéssaire pour faire la detection et suppr img sans détection
         """
+
+        # Supprimer temp
+        self.reset_temp()
+        log.info(f"temp files deleted.")
 
         frame_count, detection_count, id_count = 0, 0, 0
 
@@ -106,11 +105,6 @@ class automatic_dataset :
                     # Run YOLOv8 inference on the frame
                     results = self.model.track(frame, persist=True, classes = self.classes , conf=0.1, tracker=self.tracker)
                     result = results[0]
-
-                    # Visualize the results on the frame befor detect id
-                    annotated_frame = results[0].plot()
-                    im = Image.fromarray(annotated_frame[..., ::-1])  # RGB PIL image
-                    im.show()
                     
                     for r in result :
                         detection_count += 1
@@ -125,19 +119,19 @@ class automatic_dataset :
                         else : 
                             continue
                         
-                        if vizualize == True :
+                        if vizualize :
                             # Visualize the results on the frame when id
                             annotated_frame = results[0].plot()
                             im = Image.fromarray(annotated_frame[..., ::-1])  # RGB PIL image
                             im.show()
 
-                        # enregistrer l'image dans temp : nom = timestamp+randint(1024)
+                        # enregistrer l'image dans temp formaté : timestamp+randint(1024)
                         name = f"img_{str(int(time.time()))}_{randint(0,1023)}.png"
                         path = os.path.join(self.path_temp,name)
                         Image.fromarray(frame[:,:,::-1]).save(path,'PNG')
 
-                        # !!!! une ligne par id !!!
-                        # garder une trace (dict["nom","id","bb","code"]) du nom des fichiers + ID + bb enregristrer pour ajouter le label par la suite ou effacer
+                        # !!!! une ligne par id dans le df self.detected pour la détection de plusieurs objets sur une image !!!
+                        # Cela garde une trace (dict["nom","id","bb","code"]) du nom des fichiers + ID + bb enregristrés pour ajouter le label par la suite ou effacer
                         id = r.boxes.id.int().cpu().tolist()[0]
                         bbxyxy = r.boxes.xyxy[0].cpu().numpy() #[x1,y1,x2,y2]
                         bbxywhn = r.boxes.xywhn[0].cpu().numpy() #[x1,y1,x2,y2]
@@ -149,6 +143,7 @@ class automatic_dataset :
                break
 
             frame_count += 1
+
             if frame_count != -1 and frame_count == max_frame:
                 break
 
@@ -183,52 +178,61 @@ class automatic_dataset :
                 self.detected["code"].loc[self.detected["id"]==value["id"]] = res_barcode[0].data
                 log.info(f"code detetcted : {res_barcode[0].data}")
 
-
+        print(self.detected)
         # Transformer le dict en fichier text d'annotation yolo
-        code_detected = self.detected[self.detected["code"] != 0]
-        names = set(code_detected["name"])
-        for name in names :
-            data = code_detected[code_detected["name"]==name]
-            with open(os.path.join(self.path_temp,f"{name[:-4]}.txt"), "w") as txt:
-                for index, value in data.iterrows():
-                    txt.write(str(value["code"])[2:-1] + " " + str(value["bbxywhn"][0]) + " " + str(value["bbxywhn"][1]) + " " + str(value["bbxywhn"][2]) + " " + str(value["bbxywhn"][3]) + "\n")
+        # code_detected = self.detected[self.detected["code"] != 0]
+        # names = set(code_detected["name"])
+        # for name in names :
+        #     data = code_detected[code_detected["name"]==name]
+        #     with open(os.path.join(self.path_temp,f"{name[:-4]}.txt"), "w") as txt:
+        #         for index, value in data.iterrows():
+        #             txt.write(str(value["code"])[2:-1] + " " + str(value["bbxywhn"][0]) + " " + str(value["bbxywhn"][1]) + " " + str(value["bbxywhn"][2]) + " " + str(value["bbxywhn"][3]) + "\n")
                     
         # Enregistrer en bdd
-        temp = os.listdir(self.path_temp)
-        file_count = 0
+        # temp = os.listdir(self.path_temp)
+        # file_count = 0
         utils = Utils()
-        for name in temp:  
-            if name[-3:] == "txt" :
+        # for name in temp:  
+        #     if name[-3:] == "txt" :
 
-                # Appel API 
-                data = utils.set_img(Image.open(os.path.join(self.path_temp,f"{name[:-4]}.png")), os.path.join(self.path_temp,f"{name[:-4]}.txt"), test = self.test)
-                requests.post(f"{self.adresse_mongo}/dataset/frame", data = data)
+        #         # Appel API 
+        #         data = utils.set_img(Image.open(os.path.join(self.path_temp,f"{name[:-4]}.png")), os.path.join(self.path_temp,f"{name[:-4]}.txt"), test = self.test)
+        #         res = requests.post(f"http://api-ia/dataset/frames/", data = data)
 
-                # # Transfert de temp à dataset 
-                # os.replace(os.path.join(self.path_temp,f"{name[:-4]}.txt") , os.path.join(self.path_dataset,f"{name[:-4]}.txt"))
-                # os.replace(os.path.join(self.path_temp,f"{name[:-4]}.png") , os.path.join(self.path_dataset,f"{name[:-4]}.png"))
-                file_count += 1
+        #         # # Transfert de temp à dataset 
+        #         # os.replace(os.path.join(self.path_temp,f"{name[:-4]}.txt") , os.path.join(self.path_dataset,f"{name[:-4]}.txt"))
+        #         # os.replace(os.path.join(self.path_temp,f"{name[:-4]}.png") , os.path.join(self.path_dataset,f"{name[:-4]}.png"))
+        #         file_count += 1
 
-        log.info(f"{file_count} file(s) transfered to Mongo database in collection dataset{'_test' if self.test else ''} ")
+        # log.info(f"{file_count} file(s) transfered to Mongo database in collection dataset{'_test' if self.test else ''} ")
         # log.info(f"{file_count} file(s) transfered from temp to dataset")
 
 
+        ### New des deux derniers points # : 
+        frames = utils.pproc_frame(self.detected)
+
+        print(frames)
+
+        for frame in frames : 
+            print("---")
+            print(frame)
+            res = httpx.post(f"http://localhost/dataset/frames/", data = frame, headers=self.headers)
+            print("---")
+            print(res)
+
         # Supprimer temp
-        temp = os.listdir(self.path_temp)
-        for img in temp: 
-            os.remove(self.path_temp,img)
+        self.reset_temp()
 
-        return log.info(f"temp files deleted.")
 
     
     
-    def retrieve_off(self, code : int) -> dict :
+    def retrieve_off(self, code : str) :
         """
         Scrap API openfoodfact à partir du code pour envoyer au datawarehouse.
         Récupère les informations utiles et les retourne dans un dictionnaire.
         """
         # API OFF
-        result = requests.get(f"https://world.openfoodfacts.org/api/v2/product/{code}.json")
+        result = httpx.get(f"https://world.openfoodfacts.org/api/v2/product/{code}.json")
 
         result = json.loads(result.text)
 
@@ -243,25 +247,37 @@ class automatic_dataset :
         for i in drop_keys:
             result["product"].pop(i, None)
 
-        data = result["product"]
-        data["url_off"] = f"https://fr.openfoodfacts.org/produit/{code}/"
+        # Product est la clé qui contient toutes les informations
+        # Mapping des clés 
+        data = {}
+        data["id_code"] = str(result["product"]["_id"])
+        data["brand"] = str(result["product"]["brands_tags"])
+        data["name"] = str(result["product"]["abbreviated_product_name_fr"])
+        data["ingredient"] = str(result["product"]["ingredients_tags"])
+        data["allergen"] = str(result["product"]["allergens_tags"])
+        data["nutriment"] = str(result["product"]["nutriments"])
+        data["nutriscore"] = str(result["product"]["nutrition_grades_tags"])
+        data["ecoscore"] = str(result["product"]["ecoscore_tags"])
+        data["packaging"] = str(result["product"]["packaging_materials_tags"])
+        data["image"] = str(result["product"]["image_url"])
+        data["url_openfoodfact"] = f"https://fr.openfoodfacts.org/produit/{code}/"
 
-        return data
-    
-    def call_api_item(self, data : dict) :
-        """
-        POST les données d'open food fact sur la base de données ARMarket Maria, via l'API.
-        """
+        print(type(data))
+        print(data)
 
-        r = requests.post(f"{self.adresse_maria}//item", json=data, headers=self.headers)
+        # Envoie les données à l'api-backend
+        r = httpx.post(f"http://localhost/api-backend/items/", json=data, headers=self.headers)
+        print('---')
+        print(r.content)
 
-        return r 
+        return r
+
             
 
 
 
 
 if __name__ == "__main__":
-    create = automatic_dataset("yolov8n_custom201223_train9.pt", "data/sample/video_test_2.mp4")
+    create = automatic_dataset("data/sample/video_test_2.mp4", "yolov8n_custom201223_train9.pt")
     create()
     # create.api_off("3307130802557")

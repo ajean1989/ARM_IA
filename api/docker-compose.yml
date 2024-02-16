@@ -1,17 +1,27 @@
 version: '3.8'
 
 services:
-  arm-ia:
+  api-ia:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: api-ia
     environment:
       SERVER_VPS1_IP : ${SERVER_VPS1_IP:?error}
       USER_MONGODB : ${USER_MONGODB:?error}
       PWD_MONGODB : ${PWD_MONGODB:?error}
       ARM_VPS1_API_KEY : ${ARM_VPS1_API_KEY:?error}
     ports :
-      - 8000:80 
+      - 6002:6002 
     volumes : 
       - ./app:/api/app
-    # Ajoutez d'autres configurations de service si nécessaire
+    networks:
+      - production-network
+    labels:
+      - traefik.http.routers.api-ia.rule=PathPrefix(`/api-ia/`)
+
+
+networks:
+  production-network:
+    name: production-network
+    external: true
