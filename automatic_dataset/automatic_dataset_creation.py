@@ -58,8 +58,8 @@ class automatic_dataset :
             self.classes = [0]
       
 
-    def __call__(self, vizualize= False, max_frame = -1, mongo = False):
-        # self.reset()
+    def __call__(self, vizualize= False, max_frame = -1):
+        self.reset_temp()
         self.detection(vizualize, max_frame)
         self.code()
 
@@ -165,19 +165,21 @@ class automatic_dataset :
         for index, value in self.detected.iterrows():
             # ouvrir image
             
-            image = Image.open(os.path.join(self.path_temp,value["name"]))
+            with Image.open(os.path.join(self.path_temp,value["name"])) as image :
+            # image = Image.open(os.path.join(self.path_temp,value["name"]))
             
-            # cropper avec bb 
-            img_crop = image.crop(tuple(value["bbxyxy"]))
+                # cropper avec bb 
+                image = image.crop(tuple(value["bbxyxy"]))
 
-            # détection code 
-            # img_crop.show()
-            res_barcode = decode(img_crop)
-            if len(res_barcode) != 0 :
-                # propagation code à detected
+                # détection code 
                 # img_crop.show()
-                self.detected["code"].loc[self.detected["id"]==value["id"]] = res_barcode[0].data
-                log.info(f"code detetcted : {res_barcode[0].data}")
+                res_barcode = decode(image)
+                if len(res_barcode) != 0 :
+                    # propagation code à detected
+                    # img_crop.show()
+                    self.detected["code"].loc[self.detected["id"]==value["id"]] = res_barcode[0].data
+                    log.info(f"code detetcted : {res_barcode[0].data}")
+            
 
 
         print(self.detected)
@@ -217,15 +219,15 @@ class automatic_dataset :
 
         for frame in frames : 
             print("---")
-            print(frame)
-            print(type(frame))
-            res = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = frame, headers=self.headers)
+            # print(frame)
+            # print(type(frame))
+            res = httpx.post(f"http://traefik/api-ia/dataset/frames/", files = frame, headers=self.headers)
             print("---")
-            print(res)
+            print(res.content)
+        
+        return
 
-        # Supprimer temp
-        self.reset_temp()
-
+     
 
     
     
@@ -269,7 +271,7 @@ class automatic_dataset :
         print(data)
 
         # Envoie les données à l'api-backend
-        r = httpx.post(f"http://localhost/api-backend/items/", json=data, headers=self.headers)
+        r = httpx.post(f"http://traefik/api-backend/items/", json=data, headers=self.headers)
         print('---')
         print(r.content)
 

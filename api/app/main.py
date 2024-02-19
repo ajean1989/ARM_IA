@@ -1,3 +1,5 @@
+import json
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.security import APIKeyHeader
@@ -74,10 +76,14 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
         if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
             return JSONResponse(content={"error": "L'image doit avoir une extension .png, .jpg ou .jpeg"}, status_code=405)
         
-        metadata = eval(files[2].file.read().decode("utf-8"))
+        # metadata = eval(files[2].file.read().decode("utf-8"))
+        metadata = json.loads(files[2].file.read().decode("utf-8"))
 
-        mg.set_img(files[0].file.read(), files[1].file.read(), dataset_id = metadata["dataset"], dataset_extraction = metadata["dataset_extraction"], pretreatment = metadata["pretreatment"], data_augmentation = metadata["data_augmentation"])
+        img = files[0].file.read()
+        anotation = files[1].file.read()
         
+        mg.set_img(img, anotation, dataset_id = metadata["dataset"], dataset_extraction = metadata["dataset_extraction"], pretreatment = metadata["pretreatment"], data_augmentation = metadata["data_augmentation"])
+
         return JSONResponse(content={"message": "Frame ajoutée avec succès"}, status_code=200)
     
     except Exception as e:

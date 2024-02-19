@@ -1,7 +1,7 @@
 import os
 import re
 
-from app.mongo import Mongo
+from api.app.mongo import Mongo
 from bson.objectid import ObjectId
 
 def test_get_dataset(binary_annotation, binary_annotation_1, binary_img, binary_img_1):

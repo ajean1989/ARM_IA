@@ -142,6 +142,7 @@ class Mongo :
         # "img" : "[bin] Image"
         #imgbyte = self.img_to_byte(img)
         new_document["img"] = img
+
         # "size" : "[int] Taille de l'image en Mo"
         new_document["size"] = sys.getsizeof(img)
 

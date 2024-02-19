@@ -113,14 +113,22 @@ class Utils :
                 object_anotation = {"label" : "undefined",
                                     "label_int" : int(str(value["code"])[2:-1]),
                                     "bounding box" : [float(value["bbxywhn"][0]), float(value["bbxywhn"][1]), float(value["bbxywhn"][2]), float(value["bbxywhn"][3])]}
+           
                 binary_anotation.append(object_anotation)
-            binary_anotation = bytes(str(binary_anotation), "utf-8")
+            binary_anotation = json.dumps(binary_anotation)
+            binary_anotation = str(binary_anotation) # transform le jsonObject en str
+            binary_anotation = bytes(binary_anotation, "utf-8")
             anotations = ("files", binary_anotation)
 
-            metadata = f'{{"dataset_id" : {dataset_id}, "dataset_extraction" : {dataset_extraction}, "pretreatment" : {pretreatment}, "data_augmentation" : {data_augmentation}, "test" : {test}}}'  # Double {{}} pour escape par rapport aux variables. 
+            metadata = {"dataset" : dataset_id, 
+                        "dataset_extraction" : dataset_extraction, 
+                        "pretreatment" : pretreatment, 
+                        "data_augmentation" : data_augmentation, 
+                        "test" : test} 
+            metadata = json.dumps(metadata)
+            metadata = str(metadata) # transform le jsonObject en str
             metadata = bytes(metadata, "utf-8")
             metadatas = ("files", metadata)
             frames.append([image, anotations, metadatas])
-        
         return frames
 
