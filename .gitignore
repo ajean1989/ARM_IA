@@ -1,7 +1,7 @@
 checkpoints/*
 */model/*
-*/temp/*
-temp/*
+api/app/temp/*
+automatic_dataset/temp/*
 data/custom_model1/*
 data/custom_model1_test/*
 data/custom_model_object/*
