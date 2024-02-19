@@ -76,8 +76,8 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
         if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
             return JSONResponse(content={"error": "L'image doit avoir une extension .png, .jpg ou .jpeg"}, status_code=405)
         
-        # metadata = eval(files[2].file.read().decode("utf-8"))
-        metadata = json.loads(files[2].file.read().decode("utf-8"))
+        metadata = eval(files[2].file.read().decode("utf-8"))
+        # metadata = json.loads(files[2].file.read().decode("utf-8"))
 
         img = files[0].file.read()
         anotation = files[1].file.read()

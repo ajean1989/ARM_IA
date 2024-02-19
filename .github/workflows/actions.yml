@@ -79,7 +79,7 @@ jobs:
 
       - name: Run tests fontionnels
         run: |
-          docker exec tests-api-ia python -m pytest-sv
+          docker exec tests-api-ia python -m pytest -sv
 
 
 
