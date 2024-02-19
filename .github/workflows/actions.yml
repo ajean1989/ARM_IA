@@ -68,7 +68,7 @@ jobs:
         run: cd ../ARM_Starter && bash ./run/build.sh
 
       - name: lancer l'api
-        run: ls && cd ../ARM_IA && ls && bash ./run/tests.sh
+        run: ls && cd ./ARM_IA && ls && bash ./run/tests.sh
 
       - name: Run tests unitaires api
         run: |
