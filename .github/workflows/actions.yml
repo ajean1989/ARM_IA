@@ -89,7 +89,7 @@ jobs:
 
     environment: my-env
     env:
-  SERVER_VPS1_IP: ${{ secrets.SERVER_VPS1_IP }}
+      SERVER_VPS1_IP: ${{ secrets.SERVER_VPS1_IP }}
       ARM_VPS1_API_KEY: ${{ secrets.ARM_VPS1_API_KEY }}
       PWD_MARIADB: ${{ secrets.PWD_MARIADB }}
       PWD_MONGODB: ${{ secrets.PWD_MONGODB }}
