@@ -68,22 +68,18 @@ jobs:
         run: cd ../ARM_Starter && bash ./run/build.sh
 
       - name: lancer l'api
-        run: ls && cd ../ARM_IA && ls && bash ./run/tests.sh
+        run: mkdir ./api/app/temp && bash ./run/tests.sh
 
       - name: Run tests unitaires api
         run: |
-          docker exec api-ia python -m pytest
+          docker exec api-ia python -m pytest -sv
 
-      - name: execute api container
-        run: pwd && ls && bash ./run/tests.sh
-
-      - name: Run tests unitaires
-        run: |
-          docker exec api-ia python -m pytest
+      - name: lance le container de tests fonctionnels
+        run: cd tests_fonctionnels_api && docker compose up -d --build
 
       - name: Run tests fontionnels
         run: |
-          docker exec tests-api-ia python -m pytest
+          docker exec tests-api-ia python -m pytest-sv
 
 
 
