@@ -6,6 +6,6 @@ cd api
 docker compose up --build -d --force-recreate
 cd ..
 
-cd test_fonctionnels_api
+cd tests_fonctionnels_api
 docker compose up --build -d --force-recreate
 cd..
