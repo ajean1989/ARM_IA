@@ -87,7 +87,7 @@ class Utils :
         }]'
 
         * metadata = b'{
-            "dataset_id" : 0, 
+            "dataset_id" : [0], 
             "dataset_extraction" : "ARM", 
             "pretreatment" : False, 
             "data_augmentation" : False, 

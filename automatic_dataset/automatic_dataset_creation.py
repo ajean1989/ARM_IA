@@ -178,7 +178,7 @@ class automatic_dataset :
                     # propagation code à detected
                     # img_crop.show()
                     self.detected["code"].loc[self.detected["id"]==value["id"]] = res_barcode[0].data
-                    log.info(f"code detetcted : {res_barcode[0].data}")
+                    log.info(f"code detected : {res_barcode[0].data}")
             
 
 
@@ -219,9 +219,12 @@ class automatic_dataset :
 
         for frame in frames : 
             print("---")
-            # print(frame)
+            print(frame)
             # print(type(frame))
-            res = httpx.post(f"http://traefik/api-ia/dataset/frames/", files = frame, headers=self.headers)
+
+            #res = httpx.post(f"http://traefik/api-ia/dataset/frames/", files = frame, headers=self.headers)
+            res = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = frame, headers=self.headers)
+
             print("---")
             print(res.content)
         
@@ -271,7 +274,8 @@ class automatic_dataset :
         print(data)
 
         # Envoie les données à l'api-backend
-        r = httpx.post(f"http://traefik/api-backend/items/", json=data, headers=self.headers)
+        # r = httpx.post(f"http://traefik/api-backend/items/", json=data, headers=self.headers)
+        r = httpx.post(f"http://localhost/api-backend/items/", json=data, headers=self.headers)
         print('---')
         print(r.content)
 

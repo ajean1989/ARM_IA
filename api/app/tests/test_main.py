@@ -1,4 +1,5 @@
 import os
+import json
 
 from fastapi.testclient import TestClient
 from bson.objectid import ObjectId
@@ -106,6 +107,32 @@ def test_add_frame(binary_annotation, binary_metadata):
     assert response.json() == {"error": "array must have 3 binaries elements"}
 
     mongo.client.close()
+
+def test_add_frame_with_json(binary_img, dict_annotation, dict_metadata):
+    img = open("app/tests/sample/img_1.png","rb")
+    image = ('files', img)
+    
+    binary_anotation = []
+    binary_anotation.append(dict_annotation)
+    binary_anotation = json.dumps(binary_anotation)
+    binary_anotation = str(binary_anotation) # transform le jsonObject en str
+    binary_anotation = bytes(binary_anotation, "utf-8")
+    anotations = ("files", binary_anotation)
+
+    metadata = json.dumps(dict_metadata)
+    metadata = str(metadata) # transform le jsonObject en str
+    metadata = bytes(metadata, "utf-8")
+    metadatas = ("files", metadata)
+
+    frame = [image, anotations, metadatas]
+
+    print(frame)
+
+    response = client.post("/dataset/frames/", files = frame, headers=headers)
+    print(response.content)
+    assert response.status_code == 200
+
+
 
 
 def test_update_frame(binary_annotation, binary_metadata):

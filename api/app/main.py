@@ -74,10 +74,12 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
         if len(files) != 3:
             return JSONResponse(content={"error": "array must have 3 binaries elements"}, status_code=405)
         if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
-            return JSONResponse(content={"error": "L'image doit avoir une extension .png, .jpg ou .jpeg"}, status_code=405)
+            return JSONResponse(content={"error": f"L'image {files[0].filename.lower()} doit avoir une extension .png, .jpg ou .jpeg"}, status_code=405)
         
-        metadata = eval(files[2].file.read().decode("utf-8"))
-        # metadata = json.loads(files[2].file.read().decode("utf-8"))
+        # metadata = files[2].file.read().decode("utf-8")
+        # metadata = eval(files[2].file.read().decode("utf-8"))
+        # print(metadata)
+        metadata = json.loads(files[2].file.read().decode("utf-8"))
 
         img = files[0].file.read()
         anotation = files[1].file.read()
@@ -88,7 +90,7 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
     
     except Exception as e:
         erreur_message = str(e)
-        raise HTTPException(status_code=418, detail=f"Erreur API : {erreur_message}")
+        raise HTTPException(status_code=418, detail=f"Erreur API : {erreur_message} ")
 
 
 
