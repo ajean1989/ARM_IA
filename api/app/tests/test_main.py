@@ -95,7 +95,7 @@ def test_add_frame(binary_annotation, binary_metadata):
     files = [('files', img),("files", binary_annotation), ("files" , binary_metadata)]
     response = client.post("/dataset/frames/", files = files, headers=headers)
 
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     # Array n'a pas 3 éléments
     mongo.reset_db()
@@ -103,7 +103,7 @@ def test_add_frame(binary_annotation, binary_metadata):
     files = [('files', img),("files", binary_annotation)]
     response = client.post("/dataset/frames/", files = files, headers=headers)
 
-    assert response.status_code == 405
+    assert response.status_code == 422
     assert response.json() == {"error": "array must have 3 binaries elements"}
 
     mongo.client.close()
@@ -195,7 +195,7 @@ def test_update_frame(binary_annotation, binary_metadata):
     }
 
     response = client.put("/dataset/frames/", json = update, headers=headers)
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     mongo.client.close()
 
@@ -230,10 +230,10 @@ def test_delete_frame(binary_annotation, binary_metadata):
     # Bad id 
 
     response = client.delete(f"/dataset/frames/000111125478541154555255", headers=headers)
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     response = client.delete(f"/dataset/frames/00011", headers=headers)
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     mongo.client.close()
 

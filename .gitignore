@@ -1,21 +1,24 @@
 checkpoints/*
 */model/*
+
 api/app/temp/*
-automatic_dataset/temp/*
+
 data/custom_model1/*
 data/custom_model1_test/*
 data/custom_model_object/*
+
 mlruns/*
 runs/*
 sku110k/*
 .vscode/*
 .pytest_cache/*
 
-app.log
 
 *.code-workspace
 *.pyc
+*.log
 
-automatic_dataset/analyzed
-automatic_dataset/to_analyze
-automatic_dataset/model
+automatic_dataset/temp/*
+automatic_dataset/analyzed/*
+automatic_dataset/to_analyze/*
+automatic_dataset/model/*

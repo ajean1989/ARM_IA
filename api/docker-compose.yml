@@ -15,6 +15,7 @@ services:
       - 6002:6002 
     volumes : 
       - ./app:/api/app
+      - ../../log:/api/app/log
     networks:
       - production-network
     labels:

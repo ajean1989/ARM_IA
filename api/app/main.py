@@ -3,18 +3,25 @@ import json
 from fastapi import FastAPI, HTTPException, UploadFile, File, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.security import APIKeyHeader
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Annotated
+
 from app.mongo import Mongo
 from app.config import API_KEYS
+from app.log import Logg
 
+# Log
 
+log = Logg()
+log_debug = log.set_log_api_ia_debug()
 
 
 # API KEY
 
 API_KEY_NAME = "X-API-Key"
 api_key_header = APIKeyHeader(name=API_KEY_NAME)
+
 
 # Fonction de validation de l'API key
 
@@ -38,13 +45,30 @@ app = FastAPI(
 def mongo_connect():        # Permet d'overwrite pour les tests
     return Mongo(False)
 
+# CORS
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Routes
 
 @app.get("/")
 async def read_root():
-    return {"Hello": "World"}
+    try :        
+        return {"Hello": "World"}
+    except Exception as e : 
+        raise HTTPException(status_code=422, detail=e)
 
 
 
@@ -53,18 +77,21 @@ async def read_root():
 
 @app.get("/dataset/{id}")
 async def get_dataset(id : str, mg : Annotated[Mongo, Depends(mongo_connect)]):
-
-    zip_path = mg.get_dataset(int(id))
-
-    if zip_path == False :
-        mg.client.close()
-        raise HTTPException(status_code=401, detail="ID inexistant ou vide")
-
     try:
+        zip_path = mg.get_dataset(int(id))
+        mg.remove_temp_get_dataset()
+
+        if zip_path == False :
+            mg.client.close()
+            raise HTTPException(status_code=406, detail="ID inexistant ou vide")
+
         mg.client.close()
+        log_debug.info('/dataset/{id} : Téléchargement zip.')
         return FileResponse(zip_path, media_type="application/zip")
-    except FileNotFoundError:
-        raise HTTPException(status_code=400, detail="Fichier ZIP non trouvé")
+        
+    except Exception as e :
+        log_debug.debug(e)
+        raise HTTPException(status_code=422, detail=f"{e}")
 
 
 @app.post("/dataset/frames/")
@@ -72,9 +99,11 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
 
     try:
         if len(files) != 3:
-            return JSONResponse(content={"error": "array must have 3 binaries elements"}, status_code=405)
+            log_debug.debug(f"Il manque des éléments (3) => len : {len(files)} \n files : \n {files}")
+            return JSONResponse(content={"error": "array must have 3 binaries elements"}, status_code=422)
         if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
-            return JSONResponse(content={"error": f"L'image {files[0].filename.lower()} doit avoir une extension .png, .jpg ou .jpeg"}, status_code=405)
+            log_debug.debug(f"Invalide extension \n files : \n {files}")
+            return JSONResponse(content={"error": f"L'image {files[0].filename.lower()} doit avoir une extension .png, .jpg ou .jpeg"}, status_code=422)
         
         # metadata = files[2].file.read().decode("utf-8")
         # metadata = eval(files[2].file.read().decode("utf-8"))
@@ -85,12 +114,12 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
         anotation = files[1].file.read()
         
         mg.set_img(img, anotation, dataset_id = metadata["dataset"], dataset_extraction = metadata["dataset_extraction"], pretreatment = metadata["pretreatment"], data_augmentation = metadata["data_augmentation"])
-
+        log_debug.info(f'POST /dataset/frames/ : Frame {files[0].filename} ajoutée avec succès au dataset {metadata["dataset"]}.')
         return JSONResponse(content={"message": "Frame ajoutée avec succès"}, status_code=200)
     
-    except Exception as e:
-        erreur_message = str(e)
-        raise HTTPException(status_code=418, detail=f"Erreur API : {erreur_message} ")
+    except Exception as e :
+        log_debug.info(f"erreur : {e}")
+        raise HTTPException(status_code=422, detail=f"Erreur API : {e} ")
 
 
 
@@ -108,34 +137,37 @@ async def update_frame(mg : Annotated[Mongo, Depends(mongo_connect)], update : U
 
         for i in update["query"].keys() :
             if i not in ["name", "pre_treatment", "data_augmentation", "dataset", "training_data"] :
-                return JSONResponse(content={"error": f"Le champ {i} ne peut pas être modifié."}, status_code=405)
+                return JSONResponse(content={"error": f"Le champ {i} ne peut pas être modifié."}, status_code=422)
 
         # possible de rajouter dataset id / data augmentation / test à set_img
         mg.update_frame(update["id"], update["query"])
 
-
-        return JSONResponse(content={"message": "Frame ajoutée avec succès"}, status_code=200)
+        log_debug.info(f'PUT /dataset/frames/ : Frame {update["id"]} modifiée avec succès.')
+        return JSONResponse(content={"message": f"Frame {update['id']} modifiée avec succès"}, status_code=200)
     
-    except Exception as e:
-        erreur_message = str(e)
-        raise HTTPException(status_code=418, detail=f"Erreur API : {erreur_message}")
+    except Exception as e :
+        log_debug.info(f"erreur : {e}")
+        raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
     
 
 @app.delete("/dataset/frames/{id}")
 async def delete_frame(mg : Annotated[Mongo, Depends(mongo_connect)], id: str):
+    try : 
+        if len(id) != 24 :
+            mg.client.close()
+            raise HTTPException(status_code=422, detail="ID must have 24-character hex string")
 
-    if len(id) != 24 :
-        mg.client.close()
-        raise HTTPException(status_code=405, detail="ID must have 24-character hex string")
+        response = mg.delete_frame(id)
 
-    response = mg.delete_frame(id)
-
-    if response :
-        mg.client.close()
-        return JSONResponse(content={"message": "Élément supprimé avec succès"}, status_code=200)
-    else :
-        mg.client.close()
-        raise HTTPException(status_code=405, detail="ID inexistant")
+        if response :
+            mg.client.close()
+            log_debug.info(f'DELETE /dataset/frames/id : Frame {id} supprimée avec succès.')
+            return JSONResponse(content={"message": "Élément supprimé avec succès"}, status_code=200)
+        else :
+            mg.client.close()
+            raise HTTPException(status_code=422, detail="ID inexistant")
     
- 
+    except Exception as e : 
+        log_debug.info(f"erreur : {e}")
+        raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
 
