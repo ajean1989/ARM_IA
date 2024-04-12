@@ -69,7 +69,8 @@ jobs:
         run: cd ../ARM_Starter && bash ./run/build.sh
 
       - name: lancer l'api
-        run: mkdir ./api/app/temp && bash ./run/tests.sh
+        # run: mkdir ./api/app/temp && bash ./run/tests.sh
+        run: bash ./run/tests.sh
 
       - name: Run tests unitaires api
         run: |
