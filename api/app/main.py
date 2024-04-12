@@ -79,7 +79,6 @@ async def read_root():
 async def get_dataset(id : str, mg : Annotated[Mongo, Depends(mongo_connect)]):
     try:
         zip_path = mg.get_dataset(int(id))
-        mg.remove_temp_get_dataset()
 
         if zip_path == False :
             mg.client.close()
@@ -92,6 +91,8 @@ async def get_dataset(id : str, mg : Annotated[Mongo, Depends(mongo_connect)]):
     except Exception as e :
         log_debug.debug(e)
         raise HTTPException(status_code=422, detail=f"{e}")
+    # finally :
+    #     mg.remove_temp_get_dataset()
 
 
 @app.post("/dataset/frames/")
