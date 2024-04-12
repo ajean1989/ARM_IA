@@ -1,7 +1,7 @@
 checkpoints/*
 */model/*
 
-api/app/temp/*
+api/app/temp/*.zip
 
 data/custom_model1/*
 data/custom_model1_test/*
@@ -18,7 +18,9 @@ sku110k/*
 *.pyc
 *.log
 
-automatic_dataset/src/temp/*
-automatic_dataset/src/analyzed/*
+automatic_dataset/src/temp/*.jpg
+automatic_dataset/src/temp/*.png
+
+automatic_dataset/src/analyzed/*.mp4
 automatic_dataset/src/to_analyze/*
 automatic_dataset/src/model/*
