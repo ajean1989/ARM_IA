@@ -22,6 +22,8 @@ def test_get_dataset(binary_annotation, binary_annotation_1, binary_img, binary_
     # Il existe à la suite de get_dataset deux fichiers dans temp, un dossier et son archive
     temp_file = os.listdir(os.path.join("app","temp"))
 
+    print(temp_file)
+
     #Dossier non vide
     assert len(os.listdir(os.path.join("app","temp",temp_file[0]))) > 0
     # Il existe un fichier zip
