@@ -18,7 +18,7 @@ sku110k/*
 *.pyc
 *.log
 
-automatic_dataset/temp/*
-automatic_dataset/analyzed/*
-automatic_dataset/to_analyze/*
-automatic_dataset/model/*
+automatic_dataset/src/temp/*
+automatic_dataset/src/analyzed/*
+automatic_dataset/src/to_analyze/*
+automatic_dataset/src/model/*
