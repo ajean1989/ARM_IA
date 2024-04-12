@@ -10,12 +10,12 @@ def annotation():
         {
                 "label" : "Object",
                 "label_int" : 0,
-                "bounding box" : [0.11212, 0.11, 0.4564, 0.4546]
+                "bounding_box" : [0.11212, 0.11, 0.4564, 0.4546]
           },
           {
                 "label" : "bla",
                 "label_int" : 2,
-                "bounding box" : [0.11, 0.11, 0.45, 0.45]
+                "bounding_box" : [0.11, 0.11, 0.45, 0.45]
           }
     ]
 

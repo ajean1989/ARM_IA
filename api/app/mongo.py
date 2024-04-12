@@ -90,7 +90,7 @@ class Mongo :
             #labels = [i for i in doc.keys() if re.search("^label" , i)]
             with open(os.path.join(saving_path,f"{doc['name']}.txt"), "w") as txt :
                 for i in training_data :
-                    txt.write(f"{i['label_int']} {i['bounding box'][0]} {i['bounding box'][1]} {i['bounding box'][2]} {i['bounding box'][3]} \n")
+                    txt.write(f"{i['label_int']} {i['bounding_box'][0]} {i['bounding_box'][1]} {i['bounding_box'][2]} {i['bounding_box'][3]} \n")
         
         # Transformation en zip
         try : 
@@ -133,12 +133,12 @@ class Mongo :
                 {
                     "label" : "[str] Label associé à l'image",
                     "label_int" : "[int] Label associé à l'image sous forme d'integer unique avec table de correspondance dans label.json",
-                    "bounding box" : "[list] Liste des bounding box au format xywhn"
+                    "bounding_box" : "[list] Liste des bounding_box au format xywhn"
                 },
                 {
                     "label" : "[str] Label associé à l'image",
                     "label_int" : "[int] Label associé à l'image sous forme d'integer unique avec table de correspondance dans label.json",
-                    "bounding box" : "[list] Liste des bounding box au format xywhn"
+                    "bounding_box" : "[list] Liste des bounding_box au format xywhn"
                 }
             ]
         """

@@ -75,12 +75,12 @@ class Utils :
         * annotation = b'[{
             "label" : "Object",
             "label_int" : 0,
-            "bounding box" : [0.11212, 0.11, 0.4564, 0.4546]
+            "bounding_box" : [0.11212, 0.11, 0.4564, 0.4546]
         },
         {
             "label" : "bla",
             "label_int" : 2,
-            "bounding box" : [0.11, 0.11, 0.45, 0.45]
+            "bounding_box" : [0.11, 0.11, 0.45, 0.45]
         }]'
 
         * metadata = b'{
@@ -109,7 +109,7 @@ class Utils :
                 #transformer en dict
                 object_anotation = {"label" : "undefined",
                                     "label_int" : int(str(value["code"])[2:-1]),
-                                    "bounding box" : [float(value["bbxywhn"][0]), float(value["bbxywhn"][1]), float(value["bbxywhn"][2]), float(value["bbxywhn"][3])]}
+                                    "bounding_box" : [float(value["bbxywhn"][0]), float(value["bbxywhn"][1]), float(value["bbxywhn"][2]), float(value["bbxywhn"][3])]}
            
                 binary_anotation.append(object_anotation)
             binary_anotation = json.dumps(binary_anotation)
