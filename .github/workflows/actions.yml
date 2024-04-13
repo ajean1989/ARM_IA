@@ -116,7 +116,7 @@ jobs:
       run: scp -i ~/.ssh/id_test -r ./api debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/api
     
     - name: Copy mlflow files
-      run: scp -i ~/.ssh/id_test -r ./mlflow debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/mlfow
+      run: scp -i ~/.ssh/id_test -r ./mlflow debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/mlflow
 
     - name: Copy run file
       run: scp -i ~/.ssh/id_test ./run/build.sh debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/build.sh
