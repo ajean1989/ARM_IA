@@ -25,7 +25,8 @@ def test_get_dataset(binary_annotation, binary_annotation_1, binary_img, binary_
     print(temp_file)
 
     #Dossier non vide
-    assert len(os.listdir(os.path.join("app","temp",temp_file[0]))) > 0
+    # assert len(os.listdir(os.path.join("app","temp",temp_file[0]))) > 0
+    assert len(os.listdir(os.path.join(zip[:-4]))) > 0
     # Il existe un fichier zip
     assert temp_file[1][-3:] == "zip"
     
