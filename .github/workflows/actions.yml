@@ -127,6 +127,6 @@ jobs:
         && export SERVER_VPS1_IP=$SERVER_VPS1_IP \
         && export USER_MARIADB=$USER_MARIADB \
         && export USER_MONGODB=$USER_MONGODB \
-        && cd /home/debian/ARMarket/ARM_IA/api \
+        && cd /home/debian/ARMarket/ARM_IA \
         && bash build.sh"
 
