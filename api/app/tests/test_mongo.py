@@ -31,6 +31,8 @@ def test_get_dataset(binary_annotation, binary_annotation_1, binary_img, binary_
     a = False
     for i in temp_file :
         a = True if i[-3:] == "zip" else False
+        if a :
+            break
     assert a == True
     
     # Suppression du contenu de temp
