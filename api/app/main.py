@@ -10,6 +10,7 @@ from typing import Annotated
 from app.mongo import Mongo
 from app.config import API_KEYS
 from app.log import Logg
+from app.model import Model
 
 # Log
 
@@ -172,3 +173,34 @@ async def delete_frame(mg : Annotated[Mongo, Depends(mongo_connect)], id: str):
         log_debug.info(f"erreur : {e}")
         raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
 
+@app.post("/predict/")
+async def predict(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[UploadFile] = File(...)):
+    try:
+        if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
+            log_debug.debug(f"Invalide extension \n files : \n {files}")
+            return JSONResponse(content={"error": f"L'image {files[0].filename.lower()} doit avoir une extension .png, .jpg ou .jpeg"}, status_code=422)
+        
+        img = files[0].file.read()
+
+        img = mg.byte_to_img(img)
+
+        # predict 
+        model = Model()
+        predict = model.predict_image(img, 0.5, 0.5)
+        # res = predict.tojson()
+        res = []
+        for item in predict :
+            res.append(item.tojson())
+        #     img = item.plot()
+        #     img = img.to_list()
+        #     pred = {"img" : img,
+        #             "names" : item.names,
+        #             "boxes" : item.boxes.numpy()}
+        #     res.append(pred)
+
+        log_debug.info(f'POST /predict/ : {files[0].filename} pred => {predict}.')
+        return JSONResponse(content=res, status_code=200)
+    
+    except Exception as e :
+        log_debug.info(f"erreur : {e}")
+        raise HTTPException(status_code=422, detail=f"Erreur API : {e} ")

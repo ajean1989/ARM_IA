@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  gradio:
+    build: .
+    container_name: gradio
+    ports:
+      - 7860:7860
+    networks:
+      - production-network
+    labels:
+      - traefik.http.routers.gradio.rule=PathPrefix(`/gradio`)
+
+networks:
+  production-network:
+    name: production-network
+    external: true

@@ -9,6 +9,14 @@ from app.main import app, mongo_connect
 from app.mongo import Mongo
 from app.config import API_KEYS
 
+from app.log import Logg
+from app.model import Model
+
+# Log
+
+log = Logg()
+log_debug = log.set_log_api_ia_debug()
+
 
 client = TestClient(app)
 
@@ -239,4 +247,20 @@ def test_delete_frame(binary_annotation, binary_metadata):
     mongo.client.close()
 
 
+
+def test_predict() : 
+    img = open("app/tests/sample/img_1.png","rb")
+    image = [('files', img)]
+    response = client.post("/predict/", files=image, headers=headers)
+    pred = json.loads(response.content)
+    assert response.status_code == 200
+    log_debug.debug(f"predddd : {type(pred), pred}")
+    print(pred)
+    assert len(pred) == 1
+    for i in pred :
+        i = json.loads(i)
+        log_debug.debug(f"pppppred : {type(i), i}")
+        # json.loads(i)
+        # print(i["boxes"])
+        # print(i["names"])
 

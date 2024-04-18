@@ -1,0 +1,4 @@
+gradio
+ultralytics
+httpx
+pillow
