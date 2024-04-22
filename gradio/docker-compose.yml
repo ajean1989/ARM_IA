@@ -6,6 +6,9 @@ services:
     container_name: gradio
     ports:
       - 7860:7860
+    environment:
+      SERVER_VPS1_IP : ${SERVER_VPS1_IP:?error}
+      ARM_VPS1_API_KEY : ${ARM_VPS1_API_KEY:?error}
     networks:
       - production-network
     labels:

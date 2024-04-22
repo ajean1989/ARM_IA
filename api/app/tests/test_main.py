@@ -260,7 +260,10 @@ def test_predict() :
     for i in pred :
         i = json.loads(i)
         log_debug.debug(f"pppppred : {type(i), i}")
-        # json.loads(i)
-        # print(i["boxes"])
-        # print(i["names"])
+        for j in i :
+            log_debug.debug(f"preeeed : {type(j), j, j.keys()}")
+            log_debug.debug(j["box"])
+            log_debug.debug(j["name"])
+            log_debug.debug(j["confidence"])
+
 

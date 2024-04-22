@@ -1,15 +1,17 @@
 import io
+import os 
+import json
 
-import PIL.Image as Image
+from PIL import Image, ImageDraw
 import gradio as gr
 import httpx
 
-from ultralytics import ASSETS, YOLO
+from ultralytics import YOLO
 
 from config import *
 
 headers = {"X-API-Key" : list(API_KEYS.keys())[0]}
-model = YOLO("yolov8n_custom201223_train9.pt")
+model = YOLO(os.path.join("model", "yolov8n_custom201223_train9.pt"))
 
 
 def predict_image(img):
@@ -20,31 +22,39 @@ def predict_image(img):
 
     # export
     image = [("files", imgbyte)]
-    results = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = image, headers=headers)
-
+    response = httpx.post(f"http://traefik/api-ia/predict/", files = image, headers=headers, timeout=30.0)
+    results = json.loads(response.content)
+    draw = ImageDraw.Draw(img)
     # convert to image
     for r in results:
-        im_array = r.plot()
-        im = Image.fromarray(im_array[..., ::-1])
+        r = json.loads(r)
+        for i in r :
+            x_min, y_min, x_max, y_max = i["box"]["x1"], i["box"]["y1"], i["box"]["x2"], i["box"]["y2"]
+            name = i["name"]
+            confidence = i["confidence"]
+            text = str(name) + str(confidence)
 
-    return im
+            # Créer un objet ImageDraw pour dessiner sur l'image
+
+            # Dessiner la boîte englobante
+            draw.rectangle([x_min, y_min, x_max, y_max], width=2, outline='#C3F550')
+            draw.text([x_min, y_min], text=text, font_size=26, stroke_width=1, fill="#C3F550")
+
+
+    return img
 
 
 iface = gr.Interface(
     fn=predict_image,
     inputs=[
         gr.Image(type="pil", label="Upload Image"),
-        gr.Slider(minimum=0, maximum=1, value=0.25, label="Confidence threshold"),
-        gr.Slider(minimum=0, maximum=1, value=0.45, label="IoU threshold")
+        # gr.Slider(minimum=0, maximum=1, value=0.25, label="Confidence threshold"),
+        # gr.Slider(minimum=0, maximum=1, value=0.45, label="IoU threshold")
     ],
     outputs=gr.Image(type="pil", label="Result"),
     title="Ultralytics Gradio",
     description="Upload images for inference. The Ultralytics YOLOv8n model is used by default.",
-    examples=[
-        [ASSETS / "bus.jpg", 0.25, 0.45],
-        [ASSETS / "zidane.jpg", 0.25, 0.45],
-    ]
 )
 
 if __name__ == '__main__':
-    iface.launch(share=True)
+    iface.launch(server_name="0.0.0.0")

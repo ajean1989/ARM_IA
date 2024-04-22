@@ -176,10 +176,6 @@ async def delete_frame(mg : Annotated[Mongo, Depends(mongo_connect)], id: str):
 @app.post("/predict/")
 async def predict(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[UploadFile] = File(...)):
     try:
-        if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
-            log_debug.debug(f"Invalide extension \n files : \n {files}")
-            return JSONResponse(content={"error": f"L'image {files[0].filename.lower()} doit avoir une extension .png, .jpg ou .jpeg"}, status_code=422)
-        
         img = files[0].file.read()
 
         img = mg.byte_to_img(img)
