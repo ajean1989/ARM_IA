@@ -57,4 +57,4 @@ iface = gr.Interface(
 )
 
 if __name__ == '__main__':
-    iface.launch(server_name="0.0.0.0")
+    iface.launch(server_name="0.0.0.0", root_path="/gradio")

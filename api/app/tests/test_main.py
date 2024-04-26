@@ -9,13 +9,8 @@ from app.main import app, mongo_connect
 from app.mongo import Mongo
 from app.config import API_KEYS
 
-from app.log import Logg
+from app.log import log
 from app.model import Model
-
-# Log
-
-log = Logg()
-log_debug = log.set_log_api_ia_debug()
 
 
 client = TestClient(app)
@@ -254,16 +249,16 @@ def test_predict() :
     response = client.post("/predict/", files=image, headers=headers)
     pred = json.loads(response.content)
     assert response.status_code == 200
-    log_debug.debug(f"predddd : {type(pred), pred}")
+    log.debug(f"predddd : {type(pred), pred}")
     print(pred)
     assert len(pred) == 1
     for i in pred :
         i = json.loads(i)
-        log_debug.debug(f"pppppred : {type(i), i}")
+        log.debug(f"pppppred : {type(i), i}")
         for j in i :
-            log_debug.debug(f"preeeed : {type(j), j, j.keys()}")
-            log_debug.debug(j["box"])
-            log_debug.debug(j["name"])
-            log_debug.debug(j["confidence"])
+            log.debug(f"preeeed : {type(j), j, j.keys()}")
+            log.debug(j["box"])
+            log.debug(j["name"])
+            log.debug(j["confidence"])
 
 

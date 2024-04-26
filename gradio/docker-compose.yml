@@ -12,7 +12,7 @@ services:
     networks:
       - production-network
     labels:
-      - traefik.http.routers.gradio.rule=PathPrefix(`/gradio`)
+      - traefik.http.routers.gradio.rule=PathPrefix(`/gradio/`)
 
 networks:
   production-network:

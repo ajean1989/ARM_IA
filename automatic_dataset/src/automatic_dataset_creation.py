@@ -19,7 +19,7 @@ from pyzbar.pyzbar import decode
 
 from src.config import *
 from src.utils import Utils
-from src.log import Logg
+from src.log import log
 
 
 class automatic_dataset : 
@@ -48,10 +48,6 @@ class automatic_dataset :
             #custom model
             self.classes = [0]
 
-        # log
-        log = Logg()
-        self.log_debug = log.set_log_automatic_dataset_debug()
-
       
 
     def __call__(self, vizualize= False, max_frame = -1):
@@ -68,7 +64,7 @@ class automatic_dataset :
         for img in temp: 
             os.remove(os.path.join(self.path_temp,img))
         
-        self.log_debug.info("temp files deleted.")
+        log.info("temp files deleted.")
         
 
 
@@ -146,9 +142,9 @@ class automatic_dataset :
         cap.release()
         cv2.destroyAllWindows()
 
-        self.log_debug.info(f"{frame_count} image(s) analysed")
-        self.log_debug.info(f"{detection_count} detected object(s)")
-        self.log_debug.info(f"{id_count} id(s) affected")
+        log.info(f"{frame_count} image(s) analysed")
+        log.info(f"{detection_count} detected object(s)")
+        log.info(f"{id_count} id(s) affected")
         # log.info(f"different(s( object(s) detected)) : {len(id)}")
 
 
@@ -174,7 +170,7 @@ class automatic_dataset :
                     # propagation code à detected
                     # img_crop.show()
                     self.detected["code"].loc[self.detected["id"]==value["id"]] = res_barcode[0].data
-                    self.log_debug.info(f"code detected : {res_barcode[0].data} sur l'image {value['name']}")
+                    log.info(f"code detected : {res_barcode[0].data} sur l'image {value['name']}")
             
 
         print(self.detected)
@@ -185,13 +181,13 @@ class automatic_dataset :
         print(frames)
 
         for frame in frames : 
-            self.log_debug.debug(f"files envoyé à l'API via POST: {frame}")
+            log.debug(f"files envoyé à l'API via POST: {frame}")
 
 
             #res = httpx.post(f"http://traefik/api-ia/dataset/frames/", files = frame, headers=self.headers)
             res = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = frame, headers=self.headers)
 
-            self.log_debug.info(f" Réponse de l'API : {res.status_code} : {res.content}")
+            log.info(f" Réponse de l'API : {res.status_code} : {res.content}")
         
         return
 
@@ -235,7 +231,7 @@ class automatic_dataset :
         data["image"] = str(result["product"]["image_url"])
         data["url_openfoodfact"] = f"https://fr.openfoodfacts.org/produit/{code}/"
 
-        self.log_debug.info(f"Données récupérée de l'API OpenFoodFact : {type(data)}\n {data}")
+        log.info(f"Données récupérée de l'API OpenFoodFact : {type(data)}\n {data}")
 
 
         # Envoie les données à l'api-backend
@@ -243,7 +239,7 @@ class automatic_dataset :
         res = httpx.post(f"http://localhost/api-backend/items/", json=data, headers=self.headers)
         print('---')
         print(res.content)
-        self.log_debug.info(f" Réponse de l'API IA : {res.status_code} : {res.content}")
+        log.info(f" Réponse de l'API IA : {res.status_code} : {res.content}")
 
 
         return res

@@ -4,15 +4,16 @@ import json
 
 from PIL import Image
 
-from src.log import Logg
+from src.log import log
+
+
 
 
 class Utils :  
 
     def __init__(self) -> None:
         self.pretreatment = 1
-        log = Logg()
-        self.log_debug = log.set_log_automatic_dataset_debug()
+        
 
 
     def img_to_byte(self, img):
@@ -23,7 +24,7 @@ class Utils :
             imgbyte = imgbyte.getvalue()
             return imgbyte
         except : 
-            self.log_debug.error(Exception)
+            log.error(Exception)
     
     def byte_to_img(self, imgbyte):
         """ Conversion des BYTES en image PIL"""
@@ -32,7 +33,7 @@ class Utils :
             image_pil = Image.open(imgbyte_io)
             return image_pil
         except :
-            self.log_debug.error(Exception)
+            log.error(Exception)
 
     # def set_img(self,img, txt_path, dataset_id = 0, data_augmentation = False):
         # """ 
@@ -127,5 +128,6 @@ class Utils :
             metadata = bytes(metadata, "utf-8")
             metadatas = ("files", metadata)
             frames.append([image, anotations, metadatas])
+        log.info("p")
         return frames
 

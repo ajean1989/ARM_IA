@@ -9,13 +9,8 @@ from typing import Annotated
 
 from app.mongo import Mongo
 from app.config import API_KEYS
-from app.log import Logg
+from app.log import log
 from app.model import Model
-
-# Log
-
-log = Logg()
-log_debug = log.set_log_api_ia_debug()
 
 
 # API KEY
@@ -86,11 +81,11 @@ async def get_dataset(id : str, mg : Annotated[Mongo, Depends(mongo_connect)]):
             raise HTTPException(status_code=406, detail="ID inexistant ou vide")
 
         mg.client.close()
-        log_debug.info('/dataset/{id} : Téléchargement zip.')
+        log.info('/dataset/{id} : Téléchargement zip.')
         return FileResponse(zip_path, media_type="application/zip")
         
     except Exception as e :
-        log_debug.debug(e)
+        log.debug(e)
         raise HTTPException(status_code=422, detail=f"{e}")
     # finally :
     #     mg.remove_temp_get_dataset()
@@ -101,10 +96,10 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
 
     try:
         if len(files) != 3:
-            log_debug.debug(f"Il manque des éléments (3) => len : {len(files)} \n files : \n {files}")
+            log.debug(f"Il manque des éléments (3) => len : {len(files)} \n files : \n {files}")
             return JSONResponse(content={"error": "array must have 3 binaries elements"}, status_code=422)
         if not files[0].filename.lower().endswith((".png", ".jpg", ".jpeg")):
-            log_debug.debug(f"Invalide extension \n files : \n {files}")
+            log.debug(f"Invalide extension \n files : \n {files}")
             return JSONResponse(content={"error": f"L'image {files[0].filename.lower()} doit avoir une extension .png, .jpg ou .jpeg"}, status_code=422)
         
         # metadata = files[2].file.read().decode("utf-8")
@@ -116,11 +111,11 @@ async def add_frame(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[U
         anotation = files[1].file.read()
         
         mg.set_img(img, anotation, dataset_id = metadata["dataset"], dataset_extraction = metadata["dataset_extraction"], pretreatment = metadata["pretreatment"], data_augmentation = metadata["data_augmentation"])
-        log_debug.info(f'POST /dataset/frames/ : Frame {files[0].filename} ajoutée avec succès au dataset {metadata["dataset"]}.')
+        log.info(f'POST /dataset/frames/ : Frame {files[0].filename} ajoutée avec succès au dataset {metadata["dataset"]}.')
         return JSONResponse(content={"message": "Frame ajoutée avec succès"}, status_code=200)
     
     except Exception as e :
-        log_debug.info(f"erreur : {e}")
+        log.info(f"erreur : {e}")
         raise HTTPException(status_code=422, detail=f"Erreur API : {e} ")
 
 
@@ -144,11 +139,11 @@ async def update_frame(mg : Annotated[Mongo, Depends(mongo_connect)], update : U
         # possible de rajouter dataset id / data augmentation / test à set_img
         mg.update_frame(update["id"], update["query"])
 
-        log_debug.info(f'PUT /dataset/frames/ : Frame {update["id"]} modifiée avec succès.')
+        log.info(f'PUT /dataset/frames/ : Frame {update["id"]} modifiée avec succès.')
         return JSONResponse(content={"message": f"Frame {update['id']} modifiée avec succès"}, status_code=200)
     
     except Exception as e :
-        log_debug.info(f"erreur : {e}")
+        log.info(f"erreur : {e}")
         raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
     
 
@@ -163,14 +158,14 @@ async def delete_frame(mg : Annotated[Mongo, Depends(mongo_connect)], id: str):
 
         if response :
             mg.client.close()
-            log_debug.info(f'DELETE /dataset/frames/id : Frame {id} supprimée avec succès.')
+            log.info(f'DELETE /dataset/frames/id : Frame {id} supprimée avec succès.')
             return JSONResponse(content={"message": "Élément supprimé avec succès"}, status_code=200)
         else :
             mg.client.close()
             raise HTTPException(status_code=422, detail="ID inexistant")
     
     except Exception as e : 
-        log_debug.info(f"erreur : {e}")
+        log.info(f"erreur : {e}")
         raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
 
 @app.post("/predict/")
@@ -194,9 +189,9 @@ async def predict(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[Upl
         #             "boxes" : item.boxes.numpy()}
         #     res.append(pred)
 
-        log_debug.info(f'POST /predict/ : {files[0].filename} pred => {predict}.')
+        log.info(f'POST /predict/ : {files[0].filename} pred => {predict}.')
         return JSONResponse(content=res, status_code=200)
     
     except Exception as e :
-        log_debug.info(f"erreur : {e}")
+        log.info(f"erreur : {e}")
         raise HTTPException(status_code=422, detail=f"Erreur API : {e} ")

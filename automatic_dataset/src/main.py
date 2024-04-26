@@ -6,12 +6,9 @@ import os
 import sys
 
 from automatic_dataset_creation import automatic_dataset
-from log import Logg
 
-log = Logg()
-log_debug = log.set_log_automatic_dataset_debug()
+from log import log
 
-print(sys.path)
 
 to_analyze_folder = os.path.join("src", "to_analyze")
 analyzed_folder = os.path.join("src", "analyzed")
@@ -19,7 +16,7 @@ analyzed_folder = os.path.join("src", "analyzed")
 files_to_analyze = os.listdir(to_analyze_folder)
 
 for file in files_to_analyze :
-    log_debug.info(f"Analyse du fichier {file}")
+    log.info(f"Analyse du fichier {file}")
     process = automatic_dataset(os.path.join("src", "to_analyze", file))
     process()
     

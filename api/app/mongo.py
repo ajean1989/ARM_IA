@@ -12,7 +12,7 @@ import sys
 import os
 
 from app.config import *
-from app.log import Logg
+from app.log import log
 
 
 class Mongo :
@@ -34,8 +34,6 @@ class Mongo :
             self.dataset_collection = self.db.dataset_test
         else :
             self.dataset_collection = self.db.dataset
-        log = Logg()
-        self.log_debug = log.set_log_api_ia_debug()
 
 
 
@@ -49,7 +47,7 @@ class Mongo :
 
             return [imgbyte, image_file_size]
         except : 
-            self.log_debug.error(Exception)
+            log.error(Exception)
     
 
     
@@ -60,7 +58,7 @@ class Mongo :
             image_pil = Image.open(imgbyte_io)
             return image_pil
         except : 
-            self.log_debug.error(Exception)
+            log.error(Exception)
 
     
     
@@ -95,12 +93,12 @@ class Mongo :
         # Transformation en zip
         try : 
             shutil.make_archive(os.path.join(saving_path), 'zip', saving_path)
-            self.log_debug.info(f"Download dataset with dataset_id : {id}")
+            log.info(f"Download dataset with dataset_id : {id}")
         except : 
-            self.log_debug.info(f"Erreur dans la compression zip : {Exception}")
+            log.info(f"Erreur dans la compression zip : {Exception}")
         
         path_zip_file = os.path.join("app","temp",f"{folder_name}.zip")
-        self.log_debug.info(f"Dossier zippé : {folder_name}.zip")
+        log.info(f"Dossier zippé : {folder_name}.zip")
         return path_zip_file
 
     def remove_temp_get_dataset(self) :
@@ -182,7 +180,7 @@ class Mongo :
         
         # Insertion en base
         self.dataset_collection.insert_one(new_document)
-        self.log_debug.info(f"API : frame set in dataset{'_test' if self.test else ''} collection - dataset_id : {dataset_id}")
+        log.info(f"API : frame set in dataset{'_test' if self.test else ''} collection - dataset_id : {dataset_id}")
         
 
     def update_frame(self, id : str, query : dict):
@@ -201,7 +199,7 @@ class Mongo :
             {"_id" :  ObjectId(id)},
             {"$set" : {"update_date" : datetime.datetime.today().strftime('%Y-%m-%d')}}
             )
-        self.log_debug.info(f"API : frame {id} updated in dataset{'_test' if self.test else ''} collection with {query}")
+        log.info(f"API : frame {id} updated in dataset{'_test' if self.test else ''} collection with {query}")
         
 
 
@@ -212,7 +210,7 @@ class Mongo :
         if nb_response > 0 :
             document = self.dataset_collection.find_one(query)
             self.dataset_collection.delete_one(query)
-            self.log_debug.info(f"API : frame {id} deleted from dataset{'_test' if self.test else ''} collection. Dataset : {document['_id']}.")
+            log.info(f"API : frame {id} deleted from dataset{'_test' if self.test else ''} collection. Dataset : {document['_id']}.")
 
         return nb_response
 
