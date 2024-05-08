@@ -5,8 +5,8 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ../../volumes/mlflow/mlruns:./mlruns 
-      - ../../volumes/mlflow/mlartifacts:./mlartifacts
+      - ../../volumes/mlflow/mlruns:/mlflow/mlruns 
+      - ../../volumes/mlflow/mlartifacts:/mlflow/mlartifacts
     networks:
       - production-network
     labels:
