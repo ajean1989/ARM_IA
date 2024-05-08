@@ -1,0 +1,19 @@
+services:
+  mlflow:
+    build: .
+    container_name: mlflow
+    ports:
+      - 5000:5000
+    volumes:
+      - ../../volumes/mlflow/mlruns:./mlruns 
+      - ../../volumes/mlflow/mlartifacts:./mlartifacts
+    networks:
+      - production-network
+    labels:
+      # - traefik.http.routers.mlflow.rule=PathPrefix(`/mlflow`)
+      - traefik.http.routers.mlflow.tls=true
+
+networks:
+  production-network:
+    name: production-network
+    external: true

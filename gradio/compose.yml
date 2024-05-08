@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   gradio:
     build: .
@@ -12,7 +10,8 @@ services:
     networks:
       - production-network
     labels:
-      - traefik.http.routers.gradio.rule=PathPrefix(`/gradio/`)
+      # - traefik.http.routers.gradio.rule=PathPrefix(`/gradio/`)
+      - traefik.http.routers.gradio.tls=true
 
 networks:
   production-network:

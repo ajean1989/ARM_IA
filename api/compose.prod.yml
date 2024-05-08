@@ -1,0 +1,7 @@
+services:
+
+  api-ia:
+    labels:
+      - traefik.http.routers.api-ia.rule= Host(`jacquenet.com`) && PathPrefix(`/api-ia/`)
+      - traefik.http.routers.api-ia.tls.certresolver=myresolver
+      - traefik.http.routers.api-ia-tls.tls.domains[0].main=jacquenet.com

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   api-ia:
     build:
@@ -19,7 +17,8 @@ services:
     networks:
       - production-network
     labels:
-      - traefik.http.routers.api-ia.rule=PathPrefix(`/api-ia/`)
+      - traefik.http.routers.api-ia.tls=true
+     # - traefik.http.routers.api-ia.rule=PathPrefix(`/api-ia/`)
 
 
 networks:
