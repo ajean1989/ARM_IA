@@ -113,10 +113,10 @@ jobs:
       run: cat ~/.ssh/id_test && ssh -i ~/.ssh/id_test -o StrictHostKeyChecking=no debian@$SERVER_VPS1_IP "if [docker container ps -a | grep -q 'api-ia']; then docker rm -f api-ia; fi"
 
     - name: Copy api files
-      run: scp -i ~/.ssh/id_test -r ./api debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/api
+      run: scp -i ~/.ssh/id_test -r ./api/* debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/api
     
     - name: Copy mlflow files
-      run: scp -i ~/.ssh/id_test -r ./mlflow debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/mlflow
+      run: scp -i ~/.ssh/id_test -r ./mlflow/* debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/mlflow
 
     - name: Copy run file
       run: scp -i ~/.ssh/id_test ./run/build.sh debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/build.sh
