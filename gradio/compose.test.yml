@@ -2,6 +2,6 @@ services:
 
   gradio:
     labels:
-        - traefik.http.routers.gradio.rule= Host(`traefik`) && PathPrefix(`/gradio/`)
-        - traefik.http.routers.gradio-tls.tls.domains[0].main=traefik
-        - traefik.http.routers.gradio-tls.tls.domains[0].sans=traefik
+      - traefik.http.routers.gradio.rule= Host(`traefik`) && PathPrefix(`/gradio/`)
+      - traefik.http.routers.gradio-tls.tls.domains[0].main=traefik
+      - traefik.http.routers.gradio-tls.tls.domains[0].sans=traefik
