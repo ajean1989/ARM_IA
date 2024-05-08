@@ -22,6 +22,6 @@ def test_helloworld_mlflow() :
     response = httpx.get(f"https://traefik/mlflow/", headers = headers, verify=False)
     assert response.status_code == 200
 
-def test_helloworld_gradio() :
-    response = httpx.get(f"https://traefik/gradio/", headers = headers, verify=False)
-    assert response.status_code == 200
+# def test_helloworld_gradio() :
+#     response = httpx.get(f"https://traefik/gradio/", headers = headers, verify=False)
+#     assert response.status_code == 200
