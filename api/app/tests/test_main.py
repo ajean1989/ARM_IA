@@ -9,7 +9,7 @@ from app.main import app, mongo_connect
 from app.mongo import Mongo
 from app.config import API_KEYS
 
-from app.log import log
+from app.logger import log
 from app.model import Model
 
 
