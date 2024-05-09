@@ -12,6 +12,7 @@ services:
     labels:
       # - traefik.http.routers.mlflow.rule=PathPrefix(`/mlflow`)
       - traefik.http.routers.mlflow.tls=true
+      - traefik.http.routers.mlflow.priority=407
 
 networks:
   production-network:

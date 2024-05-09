@@ -6,6 +6,13 @@ import os
 key = os.getenv("ARM_VPS1_API_KEY")
 API_KEYS = {key: "admin"}
 
+if os.getenv("NODE_ENV") == "production":
+    DNS = "jacquenet.com"
+if os.getenv("NODE_ENV") == "development":
+    DNS = "jacquenet.traefik.me"
+if os.getenv("NODE_ENV") == "test":
+    DNS = "traefik"
+
 # Mongo DB
 
 # adresse_mongo = os.getenv("SERVER_VPS1_IP")

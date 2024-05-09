@@ -12,7 +12,7 @@ import sys
 import os
 
 from app.config import *
-from app.log import log
+from app.logger import log
 
 
 class Mongo :

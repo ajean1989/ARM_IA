@@ -9,7 +9,7 @@ from typing import Annotated
 
 from app.mongo import Mongo
 from app.config import API_KEYS
-from app.log import log
+from app.logger import log
 from app.model import Model
 
 
@@ -22,7 +22,9 @@ api_key_header = APIKeyHeader(name=API_KEY_NAME)
 # Fonction de validation de l'API key
 
 async def validate_api_key(api_key = Depends(api_key_header)):
+    log.debug("demand authentification")
     if api_key in API_KEYS:
+        log.debug("valid authentification")
         return api_key
     # code 403 automatiquement retourné par APIKeyHeader 
 
@@ -46,6 +48,8 @@ def mongo_connect():        # Permet d'overwrite pour les tests
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "https://jacquenet.com",
+    "https://jacquenet.traefik.me",
 ]
 
 app.add_middleware(

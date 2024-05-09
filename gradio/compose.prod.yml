@@ -2,6 +2,8 @@ services:
 
   gradio:
     labels:
-      - traefik.http.routers.gradio.rule= Host(`jacquenet.com`) && PathPrefix(`/gradio/`)
+      - traefik.http.routers.gradio.rule= Host(`jacquenet.com`) && PathPrefix(`/gradio`)
       - traefik.http.routers.gradio.tls.certresolver=myresolver
       - traefik.http.routers.gradio-tls.tls.domains[0].main=jacquenet.com
+    environment:
+      NODE_ENV : production

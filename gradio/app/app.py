@@ -10,9 +10,11 @@ from ultralytics import YOLO
 
 from config import *
 
+
 headers = {"X-API-Key" : list(API_KEYS.keys())[0]}
 model = YOLO(os.path.join("model", "yolov8n_custom201223_train9.pt"))
 
+print(DNS)
 
 def predict_image(img):
     # Pil to byte
@@ -22,7 +24,7 @@ def predict_image(img):
 
     # export
     image = [("files", imgbyte)]
-    response = httpx.post(f"http://traefik/api-ia/predict/", files = image, headers=headers, timeout=30.0)
+    response = httpx.post(f"https://{DNS}/api-ia/predict/", files = image, headers=headers, timeout=30.0)
     results = json.loads(response.content)
     draw = ImageDraw.Draw(img)
     # convert to image
@@ -57,4 +59,5 @@ iface = gr.Interface(
 )
 
 if __name__ == '__main__':
-    iface.launch(server_name="0.0.0.0", root_path="/gradio")
+    iface.launch(server_name="0.0.0.0", root_path="/gradio", show_error=True)
+    # iface.launch(server_name="0.0.0.0")

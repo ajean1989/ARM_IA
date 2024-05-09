@@ -15,5 +15,5 @@ COPY ./app .
 RUN chmod +x /usr/local/bin/python
 RUN chmod +x app.py
 
-CMD ["sleep", "infinity"]
-# CMD ["python", "app.py"]
+# CMD ["sleep", "infinity"]
+CMD ["python", "app.py"]

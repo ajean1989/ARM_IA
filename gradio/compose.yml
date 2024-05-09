@@ -12,6 +12,7 @@ services:
     labels:
       # - traefik.http.routers.gradio.rule=PathPrefix(`/gradio/`)
       - traefik.http.routers.gradio.tls=true
+      - traefik.http.routers.gradio.priority=406
 
 networks:
   production-network:
