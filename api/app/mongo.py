@@ -12,18 +12,19 @@ import sys
 import os
 
 from app.config import *
+from app.logger import log
 
 
 class Mongo :
 
-    log = logging.getLogger("log-auto")
-    log.setLevel(logging.DEBUG)
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    file_handler = logging.FileHandler("app.log")
-    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    log.addHandler(console_handler)   
-    log.addHandler(file_handler)   
+    # log = logging.getLogger("log-auto")
+    # log.setLevel(logging.DEBUG)
+    # console_handler = logging.StreamHandler()
+    # console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    # file_handler = logging.FileHandler("app.log")
+    # file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    # log.addHandler(console_handler)   
+    # log.addHandler(file_handler)   
 
     def __init__(self, test : bool = True) -> None:
         self.client = MongoClient(f'mongodb://{user_mongo}:{pass_mongo}@{adresse_mongo}:{port_mongo}')
@@ -36,23 +37,28 @@ class Mongo :
 
 
 
-
     def img_to_byte(self, img):
         """ Convertion d'une image PIL en BYTES """
-        imgbyte = io.BytesIO()
-        img.save(imgbyte, format="png")
-        image_file_size = imgbyte.tell()
-        imgbyte = imgbyte.getvalue()
+        try : 
+            imgbyte = io.BytesIO()
+            img.save(imgbyte, format="png")
+            image_file_size = imgbyte.tell()
+            imgbyte = imgbyte.getvalue()
 
-        return [imgbyte, image_file_size]
+            return [imgbyte, image_file_size]
+        except : 
+            log.error(Exception)
     
 
     
     def byte_to_img(self, imgbyte):
         """ Conversion des BYTES en image PIL"""
-        imgbyte_io = io.BytesIO(imgbyte)
-        image_pil = Image.open(imgbyte_io)
-        return image_pil
+        try : 
+            imgbyte_io = io.BytesIO(imgbyte)
+            image_pil = Image.open(imgbyte_io)
+            return image_pil
+        except : 
+            log.error(Exception)
 
     
     
@@ -70,7 +76,7 @@ class Mongo :
         # Création d'un dossier structuré
         current_datetime = datetime.datetime.now()
         folder_name = f"dataset_{id}_{current_datetime.strftime('%Y%m%d_%H%M%S')}"
-        saving_path = os.path.join("app","temp",folder_name)
+        saving_path = os.path.join("app", "temp", folder_name)
         os.makedirs(saving_path, exist_ok=True)
         for doc in documents:
             # Enregistrement de l'image
@@ -85,9 +91,14 @@ class Mongo :
                     txt.write(f"{i['label_int']} {i['bounding_box'][0]} {i['bounding_box'][1]} {i['bounding_box'][2]} {i['bounding_box'][3]} \n")
         
         # Transformation en zip
-        shutil.make_archive(os.path.join(saving_path), 'zip', saving_path)
-        self.log.info(f"API : download dataset with dataset_id : {id}")
+        try : 
+            shutil.make_archive(os.path.join(saving_path), 'zip', saving_path)
+            log.info(f"Download dataset with dataset_id : {id}")
+        except : 
+            log.info(f"Erreur dans la compression zip : {Exception}")
+        
         path_zip_file = os.path.join("app","temp",f"{folder_name}.zip")
+        log.info(f"Dossier zippé : {folder_name}.zip")
         return path_zip_file
 
     def remove_temp_get_dataset(self) :
@@ -120,12 +131,12 @@ class Mongo :
                 {
                     "label" : "[str] Label associé à l'image",
                     "label_int" : "[int] Label associé à l'image sous forme d'integer unique avec table de correspondance dans label.json",
-                    "bounding box" : "[list] Liste des bounding box au format xywhn"
+                    "bounding_box" : "[list] Liste des bounding_box au format xywhn"
                 },
                 {
                     "label" : "[str] Label associé à l'image",
                     "label_int" : "[int] Label associé à l'image sous forme d'integer unique avec table de correspondance dans label.json",
-                    "bounding box" : "[list] Liste des bounding box au format xywhn"
+                    "bounding_box" : "[list] Liste des bounding_box au format xywhn"
                 }
             ]
         """
@@ -169,7 +180,7 @@ class Mongo :
         
         # Insertion en base
         self.dataset_collection.insert_one(new_document)
-        self.log.info(f"API : frame set in dataset{'_test' if self.test else ''} collection - dataset_id : {dataset_id}")
+        log.info(f"API : frame set in dataset{'_test' if self.test else ''} collection - dataset_id : {dataset_id}")
         
 
     def update_frame(self, id : str, query : dict):
@@ -188,7 +199,7 @@ class Mongo :
             {"_id" :  ObjectId(id)},
             {"$set" : {"update_date" : datetime.datetime.today().strftime('%Y-%m-%d')}}
             )
-        self.log.info(f"API : frame {id} updated in dataset{'_test' if self.test else ''} collection with {query}")
+        log.info(f"API : frame {id} updated in dataset{'_test' if self.test else ''} collection with {query}")
         
 
 
@@ -199,7 +210,7 @@ class Mongo :
         if nb_response > 0 :
             document = self.dataset_collection.find_one(query)
             self.dataset_collection.delete_one(query)
-            self.log.info(f"API : frame {id} deleted from dataset{'_test' if self.test else ''} collection. Dataset : {document['_id']}.")
+            log.info(f"API : frame {id} deleted from dataset{'_test' if self.test else ''} collection. Dataset : {document['_id']}.")
 
         return nb_response
 

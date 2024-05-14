@@ -70,6 +70,7 @@ jobs:
 
       - name: lancer l'api
         run: mkdir ./api/app/temp && bash ./run/tests.sh
+        # run: bash ./run/tests.sh
 
       - name: Run tests unitaires api
         run: |
@@ -112,10 +113,16 @@ jobs:
       run: cat ~/.ssh/id_test && ssh -i ~/.ssh/id_test -o StrictHostKeyChecking=no debian@$SERVER_VPS1_IP "if [docker container ps -a | grep -q 'api-ia']; then docker rm -f api-ia; fi"
 
     - name: Copy api files
-      run: scp -i ~/.ssh/id_test -r ./api debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/api
+      run: scp -i ~/.ssh/id_test -r ./api/* debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/api
+    
+    - name: Copy mlflow files
+      run: scp -i ~/.ssh/id_test -r ./mlflow/* debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/mlflow
+
+    - name: Copy gradio files
+      run: scp -i ~/.ssh/id_test -r ./gradio/* debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/gradio
 
     - name: Copy run file
-      run: scp -i ~/.ssh/id_test ./run/build.sh debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/api/build.sh
+      run: scp -i ~/.ssh/id_test ./run/build.sh debian@$SERVER_VPS1_IP:/home/debian/ARMarket/ARM_IA/build.sh
         
 
     - name: run containers
@@ -126,6 +133,6 @@ jobs:
         && export SERVER_VPS1_IP=$SERVER_VPS1_IP \
         && export USER_MARIADB=$USER_MARIADB \
         && export USER_MONGODB=$USER_MONGODB \
-        && cd /home/debian/ARMarket/ARM_IA/api \
+        && cd /home/debian/ARMarket/ARM_IA \
         && bash build.sh"
 

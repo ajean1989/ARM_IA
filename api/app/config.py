@@ -9,6 +9,10 @@ API_KEYS = {key: "admin"}
 # Mongo DB
 
 # adresse_mongo = os.getenv("SERVER_VPS1_IP")
+
+#local
+# adresse_mongo = "localhost"
+#prod
 adresse_mongo = "mongodb"
 port_mongo = 27017
 user_mongo = os.getenv("USER_MONGODB")

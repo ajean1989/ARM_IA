@@ -22,10 +22,18 @@ def test_get_dataset(binary_annotation, binary_annotation_1, binary_img, binary_
     # Il existe à la suite de get_dataset deux fichiers dans temp, un dossier et son archive
     temp_file = os.listdir(os.path.join("app","temp"))
 
+    print(temp_file)
+
     #Dossier non vide
-    assert len(os.listdir(os.path.join("app","temp",temp_file[0]))) > 0
+    # assert len(os.listdir(os.path.join("app","temp",temp_file[0]))) > 0
+    assert len(os.listdir(os.path.join(zip[:-4]))) > 0
     # Il existe un fichier zip
-    assert temp_file[1][-3:] == "zip"
+    a = False
+    for i in temp_file :
+        a = True if i[-3:] == "zip" else False
+        if a :
+            break
+    assert a == True
     
     # Suppression du contenu de temp
     mongo.remove_temp_get_dataset()

@@ -5,3 +5,4 @@ Pillow
 python-multipart
 pytest
 httpx
+ultralytics

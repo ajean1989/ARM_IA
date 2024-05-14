@@ -1,4 +1,6 @@
 import os
+import json
+from time import time
 
 from fastapi.testclient import TestClient
 from bson.objectid import ObjectId
@@ -6,6 +8,9 @@ from bson.objectid import ObjectId
 from app.main import app, mongo_connect
 from app.mongo import Mongo
 from app.config import API_KEYS
+
+from app.logger import log
+from app.model import Model
 
 
 client = TestClient(app)
@@ -94,7 +99,7 @@ def test_add_frame(binary_annotation, binary_metadata):
     files = [('files', img),("files", binary_annotation), ("files" , binary_metadata)]
     response = client.post("/dataset/frames/", files = files, headers=headers)
 
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     # Array n'a pas 3 éléments
     mongo.reset_db()
@@ -102,10 +107,36 @@ def test_add_frame(binary_annotation, binary_metadata):
     files = [('files', img),("files", binary_annotation)]
     response = client.post("/dataset/frames/", files = files, headers=headers)
 
-    assert response.status_code == 405
+    assert response.status_code == 422
     assert response.json() == {"error": "array must have 3 binaries elements"}
 
     mongo.client.close()
+
+def test_add_frame_with_json(binary_img, dict_annotation, dict_metadata):
+    img = open("app/tests/sample/img_1.png","rb")
+    image = ('files', img)
+    
+    binary_anotation = []
+    binary_anotation.append(dict_annotation)
+    binary_anotation = json.dumps(binary_anotation)
+    binary_anotation = str(binary_anotation) # transform le jsonObject en str
+    binary_anotation = bytes(binary_anotation, "utf-8")
+    anotations = ("files", binary_anotation)
+
+    metadata = json.dumps(dict_metadata)
+    metadata = str(metadata) # transform le jsonObject en str
+    metadata = bytes(metadata, "utf-8")
+    metadatas = ("files", metadata)
+
+    frame = [image, anotations, metadatas]
+
+    print(frame)
+
+    response = client.post("/dataset/frames/", files = frame, headers=headers)
+    print(response.content)
+    assert response.status_code == 200
+
+
 
 
 def test_update_frame(binary_annotation, binary_metadata):
@@ -168,7 +199,7 @@ def test_update_frame(binary_annotation, binary_metadata):
     }
 
     response = client.put("/dataset/frames/", json = update, headers=headers)
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     mongo.client.close()
 
@@ -203,12 +234,31 @@ def test_delete_frame(binary_annotation, binary_metadata):
     # Bad id 
 
     response = client.delete(f"/dataset/frames/000111125478541154555255", headers=headers)
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     response = client.delete(f"/dataset/frames/00011", headers=headers)
-    assert response.status_code == 405
+    assert response.status_code == 422
 
     mongo.client.close()
 
+
+
+def test_predict() : 
+    img = open("app/tests/sample/img_1.png","rb")
+    image = [('files', img)]
+    response = client.post("/predict/", files=image, headers=headers)
+    pred = json.loads(response.content)
+    assert response.status_code == 200
+    log.debug(f"predddd : {type(pred), pred}")
+    print(pred)
+    assert len(pred) == 1
+    for i in pred :
+        i = json.loads(i)
+        log.debug(f"pppppred : {type(i), i}")
+        for j in i :
+            log.debug(f"preeeed : {type(j), j, j.keys()}")
+            log.debug(j["box"])
+            log.debug(j["name"])
+            log.debug(j["confidence"])
 
 

@@ -1,0 +1,7 @@
+services:
+
+  mlflow:
+    labels:
+        - traefik.http.routers.mlflow.rule= Host(`traefik`) && PathPrefix(`/mlflow/`)
+        - traefik.http.routers.mlflow-tls.tls.domains[0].main=traefik
+        - traefik.http.routers.mlflow-tls.tls.domains[0].sans=traefik
