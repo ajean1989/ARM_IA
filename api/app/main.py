@@ -182,18 +182,12 @@ async def predict(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[Upl
         # predict 
         model = Model()
         predict = model.predict_image(img, 0.5, 0.5)
-        # res = predict.tojson()
         res = []
         for item in predict :
             res.append(item.tojson())
-        #     img = item.plot()
-        #     img = img.to_list()
-        #     pred = {"img" : img,
-        #             "names" : item.names,
-        #             "boxes" : item.boxes.numpy()}
-        #     res.append(pred)
 
-        log.info(f'POST /predict/ : {files[0].filename} pred => {predict}.')
+
+        log.info(f'POST /predict/ : {files[0].filename} pred => {predict.name}.')
         return JSONResponse(content=res, status_code=200)
     
     except Exception as e :
