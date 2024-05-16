@@ -187,7 +187,7 @@ async def predict(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[Upl
             res.append(item.tojson())
 
 
-        log.info(f'POST /predict/ : {files[0].filename} pred => {predict}.')
+        log.info(f'POST /predict/ : {files[0].filename} pred => {res}.')
         return JSONResponse(content=res, status_code=200)
     
     except Exception as e :
