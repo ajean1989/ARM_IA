@@ -24,3 +24,6 @@ automatic_dataset/src/temp/*.png
 automatic_dataset/src/analyzed/*.mp4
 automatic_dataset/src/to_analyze/*
 automatic_dataset/src/model/*
+
+training/data/*
+*/runs/*

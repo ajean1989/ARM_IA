@@ -1,24 +1,28 @@
+import os
 import mlflow
 from ultralytics import YOLO
 
-# Load a pretrained YOLO model (recommended for training)
-model = YOLO('yolov8n.pt')
 
-# Train the model using the 'coco128.yaml' dataset for 3 epochs
-results = model.train(data='coco128.yaml', epochs=3)
+if __name__ == "__main__":
 
-# Evaluate the model's performance on the validation set
-results = model.val()
+    # Load a pretrained YOLO model (recommended for training)
+    model = YOLO('yolov8n.pt')
 
-# Export the model to ONNX format
-success = model.export(format='onnx')
+    # Train the model using the 'coco128.yaml' dataset for 3 epochs
+    results = model.train(data=os.path.join("code", 'test_dataset.yml'), epochs=1, batch=-1, device='0')
 
-with mlflow.start_run():
+    # Evaluate the model's performance on the validation set
+    results = model.val()
 
-    mlflow.autolog()
+    # Export the model to ONNX format
+    success = model.export(format='onnx')
 
-    # Set tracking server
-    mlflow.set_tracking_uri(uri="http://localhost:5000")
+    with mlflow.start_run():
 
-    # Experiment
-    mlflow.set_experiment("Code model")
+        mlflow.autolog()
+
+        # Set tracking server
+        mlflow.set_tracking_uri(uri="https://jacquenet.com/mlflow/")
+
+        # Experiment
+        mlflow.set_experiment("Test")

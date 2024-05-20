@@ -1,0 +1,6 @@
+path: C:\Users\Adrien\Desktop\ARM\ARM_IA\training\data\ready\test_dataset
+test: images/test
+train: images/train
+val: images/val
+names:
+  0: '8076809513753'
