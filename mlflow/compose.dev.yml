@@ -3,5 +3,6 @@ services:
   mlflow:
     labels:
         - traefik.http.routers.mlflow.rule= Host(`jacquenet.traefik.me`) && PathPrefix(`/mlflow`)
+        - traefik.http.routers.mlflow.rule= Host(`jacquenet.traefik.me`) && PathPrefix(`/api/`)
         - traefik.http.routers.mlflow-tls.tls.domains[0].main=jacquenet.traefik.me
         - traefik.http.routers.mlflow-tls.tls.domains[0].sans=jacquenet-*.traefik.me
