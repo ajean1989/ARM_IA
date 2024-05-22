@@ -1,14 +1,23 @@
+# Projet
+
+Projet de fin d'étude de la certification Simplon : Développeur en Intelligence Artificielle. 
+Ce projet est répartie en 5 thèmes: 
+- Collecte des données : via SQL et NoSQL.
+- Veille technologique sur un modèle d'IA : modèle de détection d'objet.
+- Entrainement d' un modèle de détection d'objet, monitoring du modèle, déploiement continue et exposition via une API. 
+- Interface web, pipeline CI/CD.
+- Monitoring de l'application.
+
+Ce projet est architecturé en micro-services. 3 repositories sont comoposés de plusieurs containers docker indépendants les uns des autres.  
+
 # API 
 
 Ce programme exécute l'API "IA" de l'application ARM qui a pour vocation la gestion du dataset ainsi que la mise à disposition du modèle de détection appelé par les utilisateurs.
 
-On peut déployer l'API en exécutant le programme `autorun_api.sh` sous linux ou `autorun_api.bat` sous windows (cmd). 
-Cette commande lance un container contenant python et toutes les dépendences nécéssaires. 
-Les informations sensibles sont passées via des variables d'environnement.
+On peut déployer l'API depuis les script du menu `./run/`. 
 
 Accédez au container via l'extension Dev-container : "Attach to a running container". Le volume créé dans docker-compose persiste les données entre le container et l'hôte de développement (`./app`). 
 
-Lancer les tests dans le container depuis `/api`.
 
 # Modèle de données
 
@@ -17,45 +26,5 @@ Dans le dossier `mongodb` se trouve le modèle de la base de données Mongo DB.
 # Branches
 
 + master : automatiquement poussé en production suite CI/CD.
-+ qualif : automatiquement poussé en pré-production suite CI/CD.
 + dev : branche de développement.
 
-# Data
-
-## Sample
-
-Il y a quelques exemples de données pour faire des tests.
-
-### Dataset dans gitignore
-
-On peut ajouter d'autres datasets dans gitignore pour l'entrainement des modèles.
-
-# Modeles
-
-## Checkpoint dans gitignore 
-
-télécharger les modèles yolov8x et yolov8x 
-https://github.com/ultralytics/ultralytics/tree/main
-On peut télécharger les checkpoints pour COCO ou openimageV7, détection ou segmentation. 
-
-Le modèle yolov8n_custom<date> est un modèle finetuné pour détecter les articles (boites, bocaux, contenants en général)
-
-### Modele 1 (Projet E1)
-
-Meilleur modèle à ce jour : yolov8n_custom201223_train9.pt
-yolov8 fine-tuné avec un dataset custom de openimagev7 et SKU110k
-Modèle de détection d'objet utilisé pour la création automatique du dataset.
-
-### Modele 2 
-
-Modèle qui servira à associer une image à un code barre. 
-
-# Backend
-
-Script d'anotation automatique. Il reçoit une image ou un flux vidéo en entrée et enregistre automatiquement dans la base de donnée dataset les images annotées des codes barre.
-
-# Trackers
-
-Configuration des trackers utilisés avec YoloV8 pour l'identification des objets dans une séquence vidéo. 
-Le tracker est utilisé dans l'algorithme d'annotation automatique. 
-Pour qu'il fonctionne correctement, le modèle doit avoir un bon niveau de confidence dans sa détection.
