@@ -2,4 +2,4 @@ FROM python:3.7-slim
 WORKDIR /mlflow
 RUN pip install mlflow
 EXPOSE 5000
-CMD ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000", "--serve-artifacts", "--static-prefix", "/mlflow"]
+CMD ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000", "--default-artifact-root", "./mlartifacts", "--serve-artifacts", "--static-prefix", "/mlflow"]
