@@ -5,12 +5,14 @@ from ultralytics import YOLO
 
 if __name__ == "__main__":
 
+
     # Set tracking server
     mlflow.set_tracking_uri(uri="https://jacquenet.com")
     print("URI du serveur de suivi MLflow :", mlflow.get_tracking_uri())
 
     mlflow.set_experiment("Test")
     print("Expérience actuelle MLflow :", mlflow.get_experiment_by_name("Test"))
+
 
     
 
