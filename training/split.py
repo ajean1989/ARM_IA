@@ -103,7 +103,7 @@ def generate_yml(dataset_name) :
 
     
     yml_data = {
-        'path': 'C:\Users\Adrien\Desktop\ARM\ARM_IA\training\data\ready\test_dataset',
+        'path': f'C:\Users\Adrien\Desktop\ARM\ARM_IA\training\data\ready\{dataset_name}',
         'train': 'images/train',
         'val': 'images/val',
         'test': 'images/test',
@@ -139,17 +139,55 @@ def generate_yml(dataset_name) :
                 file.write(f"{index} {words[1]} {words[2]} {words[3]} {words[4]}")
 
 
-split("test_dataset", 0.1, 0.1)
+def vizuaize_dataset(dataset_name):
+    """ créer un dossier avec les images et les bb pour visualiser les dataset"""
+    vizu_folder = os.path.join("data", "vizu", dataset_name)
+
+    raw_dataset_folder = os.listdir(os.path.join("data", "raw", dataset_name))
+
+    os.mkdir((os.path.join("data", "vizu", dataset_name)))
 
 
-generate_yml("test_dataset")
+    from PIL import Image, ImageDraw
 
-# def put_labels_dictionary(label):
+# Fonction pour lire les annotations YOLO à partir d'un fichier texte
+    for i in raw_dataset_folder:
+        annotations = []
+        if i[-3:] == "txt" :
+            with open(os.path.join("data", "raw", dataset_name, i), 'r') as file:
+                annotations = file.readlines()
+                annotations = [list(map(float, line.strip().split())) for line in annotations]
 
-#     with open("labels_dictionary.json", 'a') as labels :
-#         data = json.loads(labels.reads())
-#         if label not in data.values() : 
-#             data[max(int(data.keys()))+1] = label
+            # Fonction pour dessiner les bounding boxes sur l'image
+            image_name = i[:-4] + '.png'
+            image = Image.open(os.path.join("data", "raw", dataset_name, image_name))
+            draw = ImageDraw.Draw(image)
+            width, height = image.size
+            for annotation in annotations:
+                class_id, x_center, y_center, w, h = annotation
+                x_center *= width
+                y_center *= height
+                w *= width
+                h *= height
+                x1 = int(x_center - w / 2)
+                y1 = int(y_center - h / 2)
+                x2 = int(x_center + w / 2)
+                y2 = int(y_center + h / 2)
+                # Dessiner le rectangle
+                draw.rectangle([x1, y1, x2, y2], outline="red", width=2)
+                # Ajouter le label de la classe
+                draw.text((x1, y1 - 10), str(int(class_id)), fill="red")
+
+
+            # Sauvegarder l'image annotée
+            image.save(os.path.join(vizu_folder, f'{i[:-4]}_annotated.png'))
+
+
+# split("i0", 0.1, 0.1)
+
+# generate_yml("i0")
+
+vizuaize_dataset("i0")
 
 
 

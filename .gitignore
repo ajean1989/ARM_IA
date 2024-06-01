@@ -28,3 +28,4 @@ automatic_dataset/src/model/*
 training/data/*
 */runs/*
 */mlruns/*
+*/mlartifacts/*

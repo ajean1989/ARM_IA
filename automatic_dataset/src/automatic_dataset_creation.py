@@ -19,7 +19,7 @@ from pyzbar.pyzbar import decode
 
 from src.config import *
 from src.utils import Utils
-from src.log import log
+from src.logger import log
 
 
 class automatic_dataset : 
@@ -185,7 +185,9 @@ class automatic_dataset :
 
 
             #res = httpx.post(f"http://traefik/api-ia/dataset/frames/", files = frame, headers=self.headers)
-            res = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = frame, headers=self.headers)
+            # res = httpx.post(f"http://localhost/api-ia/dataset/frames/", files = frame, headers=self.headers)
+            res = httpx.post(f"https://jacquenet.com/api-ia/dataset/frames/", files = frame, headers=self.headers)
+
 
             log.info(f" Réponse de l'API : {res.status_code} : {res.content}")
         
@@ -236,7 +238,9 @@ class automatic_dataset :
 
         # Envoie les données à l'api-backend
         # res = httpx.post(f"http://traefik/api-backend/items/", json=data, headers=self.headers)
-        res = httpx.post(f"http://localhost/api-backend/items/", json=data, headers=self.headers)
+        # res = httpx.post(f"http://localhost/api-backend/items/", json=data, headers=self.headers)
+        res = httpx.post(f"https://jacquenet.com/api-backend/items/", json=data, headers=self.headers)
+
         print('---')
         print(res.content)
         log.info(f" Réponse de l'API IA : {res.status_code} : {res.content}")

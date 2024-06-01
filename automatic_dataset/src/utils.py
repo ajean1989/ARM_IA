@@ -4,7 +4,7 @@ import json
 
 from PIL import Image
 
-from src.log import log
+from src.logger import log
 
 
 
