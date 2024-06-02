@@ -31,19 +31,20 @@ def predict_image(img):
     results = json.loads(response.content)
     draw = ImageDraw.Draw(img)
     # convert to image
-    for r in results:
-        r = json.loads(r)
-        for i in r :
-            x_min, y_min, x_max, y_max = i["box"]["x1"], i["box"]["y1"], i["box"]["x2"], i["box"]["y2"]
-            name = i["name"]
-            confidence = i["confidence"]
-            text = str(name) + " - " +str(confidence)
+    if len(results) != 0 :
+        for r in results:
+            r = json.loads(r)
+            for i in r :
+                x_min, y_min, x_max, y_max = i["box"]["x1"], i["box"]["y1"], i["box"]["x2"], i["box"]["y2"]
+                name = i["name"]
+                confidence = i["confidence"]
+                text = str(name) + " - " +str(confidence)
 
-            # Créer un objet ImageDraw pour dessiner sur l'image
+                # Créer un objet ImageDraw pour dessiner sur l'image
 
-            # Dessiner la boîte englobante
-            draw.rectangle([x_min, y_min, x_max, y_max], width=2, outline='#C3F550')
-            draw.text([x_min, y_min], text=text, font_size=30, stroke_width=1, fill="#C3F550")
+                # Dessiner la boîte englobante
+                draw.rectangle([x_min, y_min, x_max, y_max], width=2, outline='#C3F550')
+                draw.text([x_min, y_min], text=text, font_size=30, stroke_width=1, fill="#C3F550")
 
 
     return img
