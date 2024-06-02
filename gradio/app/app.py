@@ -10,7 +10,7 @@ from ultralytics import YOLO
 
 from config import *
 
-from app.logger import log
+# from app.logger import log
 
 
 
@@ -28,8 +28,8 @@ def predict_image(img):
     # export
     image = [("files", imgbyte)]
     response = httpx.post(f"https://{DNS}/api-ia/predict/", files = image, headers=headers, timeout=30.0)
-    log.debug("code response : ", response.status_code)
-    log.debug("content : ", response.content)
+    # log.debug("code response : ", response.status_code)
+    # log.debug("content : ", response.content)
     results = json.loads(response.content)
     draw = ImageDraw.Draw(img)
     # convert to image
