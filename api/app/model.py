@@ -6,7 +6,7 @@ from ultralytics import YOLO
 
 class Model :
     def __init__(self) -> None:
-        path = os.path.join("app", "model", "yolov8n_custom201223_train9.pt")
+        path = os.path.join("app", "model", "best43.pt")
         self.model = YOLO(path)
     
     def predict_image(self, img, conf_threshold, iou_threshold):
