@@ -4,7 +4,7 @@ import os
 from src.automatic_dataset_creation import automatic_dataset
 
 
-process = automatic_dataset("src/tests/video_test_2.mp4")
+process = automatic_dataset("src/tests/multiple_bottles.mp4")
 
 # prod
 # host = 'traefik'
@@ -48,3 +48,11 @@ def test_video_detection():
     temp_folder = os.listdir(os.path.join("src", "temp"))
     assert len(temp_folder) > 0
     process.code()
+
+def test_multi_detection():
+    a = automatic_dataset("src/tests/multiple_bottles.mp4")
+    a.detection()
+    res = a.detected
+    duplicate = res.to_dict(orient="list")["name"]
+    set_duplicate = list(set(duplicate))
+    assert len(duplicate) != len(set_duplicate)

@@ -171,6 +171,22 @@ async def delete_frame(mg : Annotated[Mongo, Depends(mongo_connect)], id: str):
     except Exception as e : 
         log.info(f"erreur : {e}")
         raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
+    
+@app.delete("/dataset/")
+async def delete_frame(mg : Annotated[Mongo, Depends(mongo_connect)]):
+    try : 
+        response = mg.reset_db()
+
+        if response :
+            mg.client.close()
+            log.info(f'DELETE /dataset/ : dataset supprimée avec succès.')
+            return JSONResponse(content={"message": "Dataset supprimé avec succès"}, status_code=200)
+        else :
+            mg.client.close()
+    
+    except Exception as e : 
+        log.info(f"erreur : {e}")
+        raise HTTPException(status_code=422, detail=f"Erreur API : {e}")
 
 @app.post("/predict/")
 async def predict(mg : Annotated[Mongo, Depends(mongo_connect)], files: list[UploadFile] = File(...)):

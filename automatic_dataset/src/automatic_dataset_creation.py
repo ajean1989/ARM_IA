@@ -97,6 +97,11 @@ class automatic_dataset :
                     # Run YOLOv8 inference on the frame
                     results = self.model.track(frame, persist=True, classes = self.classes , conf=0.1, tracker=self.tracker)
                     result = results[0]
+
+                    # enregistrer l'image dans temp formaté : timestamp+randint(1024)
+                    name = f"img_{str(int(time.time()))}_{randint(0,1023)}.png"
+                    path = os.path.join(self.path_temp,name)
+                    Image.fromarray(frame[:,:,::-1]).save(path,'PNG')
                     
                     for r in result :
                         detection_count += 1
@@ -118,9 +123,9 @@ class automatic_dataset :
                             im.show()
 
                         # enregistrer l'image dans temp formaté : timestamp+randint(1024)
-                        name = f"img_{str(int(time.time()))}_{randint(0,1023)}.png"
-                        path = os.path.join(self.path_temp,name)
-                        Image.fromarray(frame[:,:,::-1]).save(path,'PNG')
+                        # name = f"img_{str(int(time.time()))}_{randint(0,1023)}.png"
+                        # path = os.path.join(self.path_temp,name)
+                        # Image.fromarray(frame[:,:,::-1]).save(path,'PNG')
 
                         # !!!! une ligne par id dans le df self.detected pour la détection de plusieurs objets sur une image !!!
                         # Cela garde une trace (dict["nom","id","bb","code"]) du nom des fichiers + ID + bb enregristrés pour ajouter le label par la suite ou effacer
