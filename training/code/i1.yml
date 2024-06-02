@@ -1,0 +1,8 @@
+names:
+  0: '8076809523547'
+  1: '8076809513753'
+  2: '8076809578264'
+path: C:\Users\Adrien\Desktop\ARM\ARM_IA\training\data\ready\i1
+test: images/test
+train: images/train
+val: images/val

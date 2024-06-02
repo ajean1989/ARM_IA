@@ -24,7 +24,7 @@ def split(dataset_name, part_val, part_test) :
 
 
 
-    # Création des dossers dans /data/ready
+    # Création des dossiers dans /data/ready
 
     if dataset_name not in os.listdir(os.path.join("data", "ready")) : 
         os.makedirs(os.path.join("data", "ready", dataset_name))
@@ -36,6 +36,8 @@ def split(dataset_name, part_val, part_test) :
         os.makedirs(os.path.join("data", "ready", dataset_name, "labels", "train"))
         os.makedirs(os.path.join("data", "ready", dataset_name, "labels", "val"))
         os.makedirs(os.path.join("data", "ready", dataset_name, "labels", "test"))
+    
+    
     # Parcours de dossier du dataset dans "raw"
 
     raw_dataset = os.listdir(os.path.join("data", "raw", dataset_name))
@@ -103,7 +105,7 @@ def generate_yml(dataset_name) :
 
     
     yml_data = {
-        'path': f'C:\Users\Adrien\Desktop\ARM\ARM_IA\training\data\ready\{dataset_name}',
+        'path': r'C:\Users\Adrien\Desktop\ARM\ARM_IA\training\data\ready\i1',
         'train': 'images/train',
         'val': 'images/val',
         'test': 'images/test',
@@ -128,15 +130,24 @@ def generate_yml(dataset_name) :
     for i in fold1 :
         folder =  os.path.join("data", "ready", dataset_name, "labels", i)
         for j in os.listdir(folder):
+            carry = []
             with open(os.path.join("data", "ready", dataset_name, "labels", i, j), 'r', encoding="utf8") as file:
                 # Parcourir chaque ligne du fichier
                 for line in file:
                     # Séparer la ligne en mots
                     words = line.split()
+                    carry.append(words)
                     # Vérifier si la ligne n'est pas vide et afficher le premier mot
-            with open(os.path.join("data", "ready", dataset_name, "labels", i, j), 'w', encoding="utf8") as file:
-                index = list(labels).index(words[0])
-                file.write(f"{index} {words[1]} {words[2]} {words[3]} {words[4]}")
+
+            for index, k in enumerate(carry) : 
+                if index == 0:
+                    with open(os.path.join("data", "ready", dataset_name, "labels", i, j), 'w', encoding="utf8") as f:
+                        index_labels = list(labels).index(k[0])
+                        f.write(f"{index_labels} {k[1]} {k[2]} {k[3]} {k[4]}\n")
+                else:
+                    with open(os.path.join("data", "ready", dataset_name, "labels", i, j), 'a', encoding="utf8") as f:
+                        index_labels = list(labels).index(k[0])
+                        f.write(f"{index_labels} {k[1]} {k[2]} {k[3]} {k[4]}\n")
 
 
 def vizuaize_dataset(dataset_name):
@@ -183,11 +194,11 @@ def vizuaize_dataset(dataset_name):
             image.save(os.path.join(vizu_folder, f'{i[:-4]}_annotated.png'))
 
 
-# split("i0", 0.1, 0.1)
+split("i1", 0.1, 0.1)
 
-# generate_yml("i0")
+generate_yml("i1")
 
-vizuaize_dataset("i0")
+# vizuaize_dataset("i1")
 
 
 

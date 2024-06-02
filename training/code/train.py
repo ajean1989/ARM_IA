@@ -24,7 +24,7 @@ if __name__ == "__main__":
         model = YOLO('yolov8n.pt')
 
         # Train the model using the 'coco128.yaml' dataset for 3 epochs
-        results = model.train(data=os.path.join("code", 'i0.yml'), epochs=5, batch=-1, device='0')
+        results = model.train(data=os.path.join("code", 'i1.yml'), epochs=10, batch=-1, device='0')
 
         # Evaluate the model's performance on the validation set
         results = model.val()
