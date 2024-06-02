@@ -9,13 +9,12 @@ import httpx
 from ultralytics import YOLO
 
 from config import *
-
-# from app.logger import log
+from logger import log
 
 
 
 headers = {"X-API-Key" : list(API_KEYS.keys())[0]}
-model = YOLO(os.path.join("model", "train43.onnx"))
+model = YOLO(os.path.join("model", "train43.pt"))
 
 print(DNS)
 
@@ -28,8 +27,8 @@ def predict_image(img):
     # export
     image = [("files", imgbyte)]
     response = httpx.post(f"https://{DNS}/api-ia/predict/", files = image, headers=headers, timeout=30.0)
-    # log.debug("code response : ", response.status_code)
-    # log.debug("content : ", response.content)
+    log.debug("code response : ", response.status_code)
+    log.debug("content : ", response.content)
     results = json.loads(response.content)
     draw = ImageDraw.Draw(img)
     # convert to image
@@ -61,6 +60,11 @@ iface = gr.Interface(
     outputs=gr.Image(type="pil", label="Result"),
     title="Ultralytics Gradio",
     description="Upload png images for inference. The Ultralytics YOLOv8n model is used by default.",
+    examples=[
+        [os.path.join("sample", "1.png")],
+        [os.path.join("sample", "2.png")],
+        [os.path.join("sample", "3.png")]
+    ]
 )
 
 if __name__ == '__main__':
