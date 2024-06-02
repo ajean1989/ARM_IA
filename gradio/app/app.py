@@ -15,7 +15,7 @@ from app.logger import log
 
 
 headers = {"X-API-Key" : list(API_KEYS.keys())[0]}
-model = YOLO(os.path.join("model", "ytrain43.onnx"))
+model = YOLO(os.path.join("model", "train43.onnx"))
 
 print(DNS)
 
